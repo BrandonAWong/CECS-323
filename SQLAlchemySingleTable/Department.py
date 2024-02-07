@@ -5,7 +5,10 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 
 class Department(Base):
-    """SOMEONE DO THIS PLEASE!!"""
+    """A section of a the university which deals with the study of 
+	a particular subject. Several different programs and degrees are offered
+	regarding the subject. An examlpe would be the Department of Finance from
+	the College of Business (COB) from California State University Long Beach."""
     __tablename__ = "departments"
     name: Mapped[str] = mapped_column("name", String(50), nullable=False, primary_key=True)
     abbreviation: Mapped[str] = mapped_column("abbreviation", String(6), nullable=False)
