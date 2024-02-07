@@ -176,6 +176,71 @@ def select_student_from_list(session):
     print("Selected student: ", returned_student)
 
 
+    #department functions
+
+    def add_department(session: Session):
+        """
+        Prompt the user for the information for a new student and validate
+        the input to make sure that we do not create any duplicates.
+        :param session: The connection to the database.
+        :return:        None
+        """
+        unique_abbreviation: bool = False
+        unique_chair: bool = False
+        unique_room: bool = False
+        unique_desc: bool = False
+        name: str = ''
+        abbreviation: str = ''
+        chair_name: str = ''
+        building: str = ''
+        office: int = ''
+        description: str = ''
+
+        while not unique_abbreviation or not unique_chair or not unique_room or not unique_desc:
+            name = input("Department name--> ")
+            abbreviation = input("Department abbreviation--> ")
+            chair_name = input("Department Chair--> ")
+            building = input("Department Building--> ")
+            office = input("Department Office in Building --> ")
+            description = input("Department description --> ")
+
+            abbrev_count: int = session.query(Department).filter(Department.abbreviation == abbreviation).count()
+            unique_abbreviation = abbrev_count == 0
+
+            if not unique_abbreviation:
+                print("We already have an abbreviation of that department.  Try again.")
+            
+            if unique_abbreviation:
+                chair_count: int = session.query(Department).filter(Department.chairName == chair_name).count()
+                unique_chair = chair_count == 0
+                if not unique_chair:
+                    print("We already have that professor as chair of another department.  Try again.")
+                
+                if unique_chair:
+                    room_count: int = session.query(Department).filter(Department.building == building, Department.office == office).count()
+                    unique_room = room_count == 0
+                    if not unique_room:
+                        print("That room already is taken by another department.  Try again.")
+
+                    if unique_room:
+                        desc_count: int = session.query(Department).filter(Department.description == description).count()
+                        unique_desc = desc_count == 0
+                        if not unique_desc:
+                            print("Another department already has that description.  Try again.")
+
+                
+        newDepartment = Department(name, abbreviation, chair_name, building, office, description)
+        session.add(newDepartment)
+
+    def delete_department(session: Session):
+        pass
+
+    def select_department_from_list(session):
+        pass
+
+    
+
+
 if __name__ == '__main__':
     print('Starting off')
     logging.basicConfig()
