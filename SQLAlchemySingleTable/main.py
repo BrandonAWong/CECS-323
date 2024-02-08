@@ -1,5 +1,5 @@
 import logging
-from menu_definitions import menu_main, student_select, debug_select, menu_department, department_select
+from menu_definitions import menu_main, student_select, debug_select, menu_department, department_select, menu_select
 from db_connection import engine, Session
 from orm_base import metadata
 # Note that until you import your SQLAlchemy declarative classes, such as Student, Python
@@ -322,11 +322,12 @@ if __name__ == '__main__':
     # Create whatever tables are called for by our "Entity" classes.
     metadata.create_all(bind=engine)
 
+    menu = menu_select.menu_prompt()
     with Session() as sess:
-        main_action: str = ''
-        while main_action != menu_department.last_action():
-            main_action = menu_department.menu_prompt()
-            print('next action: ', main_action)
-            exec(main_action)
+        action: str = ''
+        while action != menu.last_action():
+            action = menu.menu_prompt()
+            print('next action: ', action)
+            exec(action)
         sess.commit()
     print('Ending normally')

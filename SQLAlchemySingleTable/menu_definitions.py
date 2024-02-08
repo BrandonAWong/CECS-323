@@ -48,3 +48,8 @@ debug_select = Menu('debug select', 'Please select a debug level:', [
     Option("Debug", "logging.DEBUG"),
     Option("Error", "logging.ERROR")
 ])
+
+menu_select = Menu("select", "Please select what table you would like to work with:", [
+    Option("Student", menu_main),
+    Option("Department", menu_department)
+])
