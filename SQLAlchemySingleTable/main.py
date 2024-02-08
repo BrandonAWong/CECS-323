@@ -298,10 +298,10 @@ def select_department_description(sess: Session) -> Department:
     """
     while True:
         description: str = input("Enter the department description --> ")
-        try:
-            return sess.query(Department).filter(Department.description == description).first()
-        except:
-            print("No department with that description.  Try again.")
+        department: Department = sess.query(Department).filter(Department.description == description).first()
+        if department:
+            return department
+        print("No department with that description.  Try again.")
 
 
 if __name__ == '__main__':
