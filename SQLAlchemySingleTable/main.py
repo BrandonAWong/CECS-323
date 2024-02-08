@@ -234,6 +234,7 @@ def find_department(sess: Session) -> Department:
                 old_department = select_department_description(sess)
             case _:
                 old_department = None
+        print(str(old_department))
         return old_department
 
 #Helper methods for find_department
@@ -298,9 +299,8 @@ def select_department_description(sess: Session) -> Department:
     """
     while True:
         description: str = input("Enter the department description --> ")
-        department: Department = sess.query(Department).filter(Department.description == description).first()
-        if department:
-            return department
+        if sess.query(Department).filter(Department.description == description).count():
+            return sess.query(Department).filter(Department.description == description).first()
         print("No department with that description.  Try again.")
 
 
@@ -317,7 +317,7 @@ if __name__ == '__main__':
     # for more logging messages, set the level to logging.DEBUG.
     logging.getLogger("sqlalchemy.pool").setLevel(eval(logging_action))
 
-    metadata.drop_all(bind=engine)  # start with a clean slate while in development
+    #metadata.drop_all(bind=engine)  # start with a clean slate while in development
 
     # Create whatever tables are called for by our "Entity" classes.
     metadata.create_all(bind=engine)
