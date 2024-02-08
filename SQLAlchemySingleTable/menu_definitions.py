@@ -13,8 +13,9 @@ variables or not in Python.
 
 menu_department = Menu('department', 'Please select what to do with the department:', [
     Option("Add Department", "add_department(sess)"),
-    Option("Select Department", "select_department(sess)"),
-    Option("Delete Department", "delete_department(sess)")
+    Option("Select Department from List", "find_department(sess)"),
+    Option("Delete Department", "delete_department(sess)"),
+    Option("Exit", "pass")
 ])
 
 department_select = Menu('department select', "Please select how you want to select a department:", [

@@ -212,7 +212,7 @@ def add_department(session: Session) -> None:
 
 def delete_department(session: Session):
     print("deleting a department")
-    oldDepartment = find_student(session)
+    oldDepartment = find_department(session)
     session.delete(oldDepartment)
 
 def find_department(sess: Session) -> Department:
@@ -236,6 +236,7 @@ def find_department(sess: Session) -> Department:
                 old_department = None
         return old_department
 
+#Helper methods for find_department
 def select_department_abbreviation(sess: Session) -> Department:
     """
     Select a department by the abbreviation.
@@ -305,6 +306,7 @@ def select_department_description(sess: Session) -> Department:
             print("No department with that description.  Try again.")
     old_department = sess.query(Department).filter(Department.description == description).first()
     return old_department
+
 
 if __name__ == '__main__':
     print('Starting off')
