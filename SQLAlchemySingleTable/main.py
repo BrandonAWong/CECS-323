@@ -1,5 +1,5 @@
 import logging
-from menu_definitions import menu_main, student_select, debug_select
+from menu_definitions import menu_main, student_select, debug_select, menu_department, department_select
 from db_connection import engine, Session
 from orm_base import metadata
 # Note that until you import your SQLAlchemy declarative classes, such as Student, Python
@@ -179,45 +179,132 @@ def select_student_from_list(session):
 
     #department functions
 
-    def add_department(session: Session) -> None:
+def add_department(session: Session) -> None:
+    """
+    Prompt the user for the information for a new department and validate
+    the input to make sure that we do not create any duplicates.
+    :param session: The connection to the database.
+    :return:        None
+    """
+    while True: 
+        name: str = input("Department name--> ")
+        abbreviation: str = input("Department abbreviation--> ")
+        chair_name: str = input("Department Chair--> ")
+        building: str = input("Department Building--> ")
+        office: str = input("Department Office in Building --> ")
+        description: str = input("Department description --> ")
+
+        if not session.query(Department).filter(Department.abbreviation == abbreviation).count():
+            print("We already have an abbreviation of that department.  Try again.")
+            continue
+        elif not session.query(Department).filter(Department.chairName == chair_name).count():
+            print("We already have that professor as chair of another department.  Try again.")
+            continue
+        elif not session.query(Department).filter(Department.building == building, Department.office == office).count(): 
+            print("That building and room already is taken by another department.  Try again.")
+            continue
+        elif not session.query(Department).filter(Department.description == description).count():
+            print("Another department already has that description.  Try again.")
+            continue
+        break
+
+    session.add(Department(name, abbreviation, chair_name, building, office, description))
+
+def delete_department(session: Session):
+    print("deleting a department")
+    oldDepartment = find_student(session)
+    session.delete(oldDepartment)
+
+def find_department(sess: Session) -> Department:
         """
-        Prompt the user for the information for a new student and validate
-        the input to make sure that we do not create any duplicates.
-        :param session: The connection to the database.
-        :return:        None
+        Prompt the user for attribute values to select a single department.
+        :param sess:    The connection to the database.
+        :return:        The instance of Department that the user selected.
+                        Note: there is no provision for the user to simply "give up".
         """
-        while True: 
-            name: str = input("Department name--> ")
-            abbreviation: str = input("Department abbreviation--> ")
-            chair_name: str = input("Department Chair--> ")
-            building: str = input("Department Building--> ")
-            office: str = input("Department Office in Building --> ")
-            description: str = input("Department description --> ")
+        find_department_command = department_select.menu_prompt()
+        match find_department_command:
+            case "abbreviation":
+                old_department = select_department_abbreviation(sess)
+            case "chair":
+                old_department = select_department_chair(sess)
+            case "building/office":
+                old_department = select_department_building_office(sess)
+            case "description":
+                old_department = select_department_description(sess)
+            case _:
+                old_department = None
+        return old_department
 
-            if not session.query(Department).filter(Department.abbreviation == abbreviation).count():
-            	print("We already have an abbreviation of that department.  Try again.")
-				continue
-            elif not session.query(Department).filter(Department.chairName == chair_name).count():
-           		print("We already have that professor as chair of another department.  Try again.")
-				continue
-            elif not session.query(Department).filter(Department.building == building, Department.office == office).count(): 
-            	print("That room already is taken by another department.  Try again.")
-				continue
-			elif not session.query(Department).filter(Department.description == description).count():
-            	print("Another department already has that description.  Try again.")
-            	continue
-			break
-	
-        session.add(Department(name, abbreviation, chair_name, building, office, description))
+def select_department_abbreviation(sess: Session) -> Department:
+    """
+    Select a department by the abbreviation.
+    :param sess:    The connection to the database.
+    :return:        The selected department.
+    """
+    found: bool = False
+    abbreviation: str = ''
+    while not found:
+        abbreviation = input("Enter the department abbreviation --> ")
+        abbr_count: int = sess.query(Department).filter(Department.abbreviation == abbreviation).count()
+        found = abbr_count == 1
+        if not found:
+            print("No department with that abbreviation.  Try again.")
+    old_department = sess.query(Department).filter(Department.abbreviation == abbreviation).first()
+    return old_department
 
-    def delete_department(session: Session):
-        pass
+def select_department_chair(sess: Session) -> Department:
+    """
+    Select a department by the abbreviation.
+    :param sess:    The connection to the database.
+    :return:        The selected department.
+    """
+    found: bool = False
+    chair: str = ''
+    while not found:
+        chair = input("Enter the department chair --> ")
+        chair_count: int = sess.query(Department).filter(Department.chairName == chair).count()
+        found = chair_count == 1
+        if not found:
+            print("No department with that chair.  Try again.")
+    old_department = sess.query(Department).filter(Department.chairName == chair).first()
+    return old_department
 
-    def select_department_from_list(session):
-        pass
+def select_department_building_office(sess: Session) -> Department:
+    """
+    Select a department by the abbreviation.
+    :param sess:    The connection to the database.
+    :return:        The selected department.
+    """
+    found: bool = False
+    building: str = ''
+    office: int = 0
+    while not found:
+        building = input("Enter the department building --> ")
+        office = input("Enter the department office number --> ")
+        room_count: int = sess.query(Department).filter(Department.building == building, Department.office == office).count()
+        found = room_count == 1
+        if not found:
+            print("No department is in that room.  Try again.")
+    old_department = sess.query(Department).filter(Department.building == building, Department.office == office).first()
+    return old_department
 
-    
-
+def select_department_description(sess: Session) -> Department:
+    """
+    Select a department by the abbreviation.
+    :param sess:    The connection to the database.
+    :return:        The selected department.
+    """
+    found: bool = False
+    description: str = ''
+    while not found:
+        description = input("Enter the department description --> ")
+        desc_count: int = sess.query(Department).filter(Department.description == description).count()
+        found = desc_count == 1
+        if not found:
+            print("No department with that description.  Try again.")
+    old_department = sess.query(Department).filter(Department.description == description).first()
+    return old_department
 
 if __name__ == '__main__':
     print('Starting off')

@@ -19,7 +19,7 @@ menu_department = Menu('department', 'Please select what to do with the departme
 
 department_select = Menu('department select', "Please select how you want to select a department:", [
     Option("Abbreviation", "abbreviation"),
-    Option("Chair Name", "chair_name"),
+    Option("Chair Name", "chair"),
     Option("Building and Office", "building/office"),
     Option("Description", "description")
 ])
