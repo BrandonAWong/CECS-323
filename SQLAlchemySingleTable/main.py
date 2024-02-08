@@ -194,16 +194,16 @@ def add_department(session: Session) -> None:
         office: str = input("Department Office in Building --> ")
         description: str = input("Department description --> ")
 
-        if not session.query(Department).filter(Department.abbreviation == abbreviation).count():
+        if session.query(Department).filter(Department.abbreviation == abbreviation).count():
             print("We already have an abbreviation of that department.  Try again.")
             continue
-        elif not session.query(Department).filter(Department.chairName == chair_name).count():
+        elif session.query(Department).filter(Department.chairName == chair_name).count():
             print("We already have that professor as chair of another department.  Try again.")
             continue
-        elif not session.query(Department).filter(Department.building == building, Department.office == office).count(): 
+        elif session.query(Department).filter(Department.building == building, Department.office == office).count(): 
             print("That building and room already is taken by another department.  Try again.")
             continue
-        elif not session.query(Department).filter(Department.description == description).count():
+        elif session.query(Department).filter(Department.description == description).count():
             print("Another department already has that description.  Try again.")
             continue
         break
@@ -296,16 +296,12 @@ def select_department_description(sess: Session) -> Department:
     :param sess:    The connection to the database.
     :return:        The selected department.
     """
-    found: bool = False
-    description: str = ''
-    while not found:
-        description = input("Enter the department description --> ")
-        desc_count: int = sess.query(Department).filter(Department.description == description).count()
-        found = desc_count == 1
-        if not found:
+    while True:
+        description: str = input("Enter the department description --> ")
+        try:
+            return sess.query(Department).filter(Department.description == description).first()
+        except:
             print("No department with that description.  Try again.")
-    old_department = sess.query(Department).filter(Department.description == description).first()
-    return old_department
 
 
 if __name__ == '__main__':
@@ -328,8 +324,8 @@ if __name__ == '__main__':
 
     with Session() as sess:
         main_action: str = ''
-        while main_action != menu_main.last_action():
-            main_action = menu_main.menu_prompt()
+        while main_action != menu_department.last_action():
+            main_action = menu_department.menu_prompt()
             print('next action: ', main_action)
             exec(main_action)
         sess.commit()
