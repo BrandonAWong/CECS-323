@@ -191,7 +191,7 @@ def add_department(session: Session) -> None:
         abbreviation: str = input("Department abbreviation--> ")
         chair_name: str = input("Department Chair--> ")
         building: str = input("Department Building--> ")
-        office: str = input("Department Office in Building --> ")
+        office: int = int(input("Department Office in Building --> "))
         description: str = input("Department description --> ")
 
         if session.query(Department).filter(Department.abbreviation == abbreviation).count():
