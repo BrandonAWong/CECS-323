@@ -241,36 +241,26 @@ def find_department(sess: Session) -> Department:
 def select_department_abbreviation(sess: Session) -> Department:
     """
     Select a department by the abbreviation.
-    :param sess:    The connection to the database.
-    :return:        The selected department.
+    :param sess:	The connection to the databse.
+    :return:		The selected department.
     """
-    found: bool = False
-    abbreviation: str = ''
-    while not found:
-        abbreviation = input("Enter the department abbreviation --> ")
-        abbr_count: int = sess.query(Department).filter(Department.abbreviation == abbreviation).count()
-        found = abbr_count == 1
-        if not found:
-            print("No department with that abbreviation.  Try again.")
-    old_department = sess.query(Department).filter(Department.abbreviation == abbreviation).first()
-    return old_department
+    while True:
+        abbreviation: str = input("Enter the department abbreviation --> ")
+        if sess.query(Department).filter(Department.abbreviation == abbreviation).first():
+            return sess.query(Department).filter(Department.abbreviation == abbreviation).first()
+        print("No department with that abbreviation.  Try again.")
 
 def select_department_chair(sess: Session) -> Department:
     """
     Select a department by the abbreviation.
-    :param sess:    The connection to the database.
-    :return:        The selected department.
+    :param sess:	The connection to the database.
+    :return: 		The selected department.
     """
-    found: bool = False
-    chair: str = ''
-    while not found:
-        chair = input("Enter the department chair --> ")
-        chair_count: int = sess.query(Department).filter(Department.chairName == chair).count()
-        found = chair_count == 1
-        if not found:
-            print("No department with that chair.  Try again.")
-    old_department = sess.query(Department).filter(Department.chairName == chair).first()
-    return old_department
+    while True:
+        chair: str = input("Enter the departnment chair --> ")
+        if sess.query(Department).filter(Department.chairName == chair).first():
+            return sess.query(Department).filter(Department.chairName == chair).first()
+        print("No department with that chair.  Try again.")
 
 def select_department_building_office(sess: Session) -> Department:
     """
@@ -278,18 +268,12 @@ def select_department_building_office(sess: Session) -> Department:
     :param sess:    The connection to the database.
     :return:        The selected department.
     """
-    found: bool = False
-    building: str = ''
-    office: int = 0
-    while not found:
-        building = input("Enter the department building --> ")
-        office = input("Enter the department office number --> ")
-        room_count: int = sess.query(Department).filter(Department.building == building, Department.office == office).count()
-        found = room_count == 1
-        if not found:
-            print("No department is in that room.  Try again.")
-    old_department = sess.query(Department).filter(Department.building == building, Department.office == office).first()
-    return old_department
+    while True:
+        building: str = input("Enter the department building --> ")
+        office: int = int(input("Enter the department office number --> "))
+        if sess.query(Department).filter(Department.building == building, Department.office == office).first():
+            return sess.query(Department).filter(Department.building == building, Department.office == office).first()
+        print("No department is in that room.  Try again.")
 
 def select_department_description(sess: Session) -> Department:
     """
