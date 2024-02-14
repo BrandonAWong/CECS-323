@@ -48,10 +48,9 @@ elif introspection_type == INTROSPECT_TABLES:
         courseNumber: Mapped[int] = column_property(__table__.c.course_number)
         course: Mapped["Course"] = relationship(back_populates="sections")
 
-def __init__(self, department: Department, course: Course, sectionNumber: int, semester: str, sectionYear: int,
+def __init__(self, course: Course, sectionNumber: int, semester: str, sectionYear: int,
              building: str, room: int, schedule: str, startTime: Time, instructor: str):
-    self.department = department
-    self.departmentAbbreviation = department.abbreviation
+    self.departmentAbbreviation = course.departmentAbbreviation
     self.course = course
     self.courseNumber = course.courseNumber
     self.sectionNumber = sectionNumber
