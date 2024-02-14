@@ -40,3 +40,21 @@ introspection_select = Menu("introspection selectt", 'To introspect or not:', [
     Option("Reuse tables", INTROSPECT_TABLES),
     Option("Reuse without introspection", REUSE_NO_INTROSPECTION)
 ])
+
+# A simplified main menu to prompt options for the Course or Section schemas 
+menu_course_section = Menu('course/section', 'Please select one of the following options:', [
+    Option("Add course", "add_course(sess)"),
+    Option("Add section", "add_section(sess)"),
+    Option("Select section", "find_section(sess)"),
+    Option("List course sections", "list_course_sections(sess)"),
+    Option("Delete course", "delete_course(sess)"),
+    Option("Delete section", "delete_section(sess)"),
+    Option("Commit", "sess.commit()"),
+    Option("Break out into shell", "IPython.embed()"),
+    Option("Exit", "pass")
+])
+
+menu_select = Menu("select", "Please select what menu you would like to work with:", [
+    Option("Main", menu_main),
+    Option("Simplified", menu_course_section)
+])
