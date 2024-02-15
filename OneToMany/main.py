@@ -1,6 +1,6 @@
 import logging
 # My option lists for
-from menu_definitions import menu_main, debug_select
+from menu_definitions import menu_main, debug_select, menu_select, menu_course_section
 from IntrospectionFactory import IntrospectionFactory
 from db_connection import engine, Session
 from orm_base import metadata
@@ -8,13 +8,15 @@ from orm_base import metadata
 # will not execute that code, and SQLAlchemy will be unaware of the mapped table.
 from Department import Department
 from Course import Course
+from Section import Section
 from Option import Option
 from Menu import Menu
 # Poor man's enumeration of the two available modes for creating the tables
 from constants import START_OVER, INTROSPECT_TABLES, REUSE_NO_INTROSPECTION
 import IPython  # So that I can exit out to the console without leaving the application.
-from sqlalchemy import inspect  # map from column name to attribute name
+from sqlalchemy import inspect # map from column name to attribute name
 from pprint import pprint
+from datetime import time
 
 
 def add_department(session):
@@ -82,6 +84,7 @@ def add_course(session):
 def select_department(sess) -> Department:
     """
     Prompt the user for a specific department by the department abbreviation.
+    from Section import Section
     :param sess:    The connection to the database.
     :return:        The selected department.
     """
@@ -243,6 +246,49 @@ def list_department_courses(sess):
     for dept_course in dept_courses:
         print(dept_course)
 
+def add_section(sess):
+    """
+    Prompt the user for the information for a new section and validate
+    the input to make sure that we do not create any duplicates.
+    :param session: The connection to the database.
+    :return:        None
+    """
+    course: Course = select_course(sess)
+    while True:
+        number: int = int(input("Section number--> "))
+        year: int = int(input("Section year--> "))
+        semester: str = get_valid_input("Section semester--> ",
+                                        ("Fall", "Spring", "Winter", "Summer I", "Summer II"))
+        schedule: str = get_valid_input("Section schedule--> ",
+                                        ("MW", "TuTh", "MWF", "F", "S")) 
+        start_time: time = time(*[int(e) for e in input("Section time[HH:MM]--> ").split(":")]) 
+        building: str = get_valid_input("Section building--> ", 
+                                        ("VEC", "ECS", "EN2", "EN3", "EN4", "ET", "SSPA"))
+        room: int = int(input("Section room--> "))
+
+        if (sess.query(Section).filter(Section.sectionYear == year, Section.semester == semester,
+                                       Section.schedule == schedule, Section.startTime == start_time, 
+                                       Section.building == building, Section.room == room).count()):
+            print("We already have a section in this room.  Try again.")
+            continue
+
+        instructor: str = input("Section instructor--> ")
+        if (sess.query(Section).filter(Section.sectionYear == year, Section.semester == semester,
+                                       Section.schedule == schedule, Section.startTime == start_time, 
+                                       Section.instructor == instructor).count()): 
+            print("We already have that instructor in a section at the same time.  Try again.")
+            continue
+        break
+    
+    sess.add(Section(course, number, semester, year, building, room, schedule, start_time, instructor))
+
+def get_valid_input(prompt: str, valid_entries: tuple | list | set) -> str:
+    while True:
+        usr_input = input(prompt)
+        if usr_input in valid_entries:
+            return usr_input
+        print(f"Invalid input. Input must only be {valid_entries}.  Try again.")
+
 
 if __name__ == '__main__':
     print('Starting off')
@@ -272,12 +318,13 @@ if __name__ == '__main__':
         # reflection needed at this point, those classes are loaded and ready to go.
     elif introspection_mode == REUSE_NO_INTROSPECTION:
         print("Assuming tables match class definitions")
-
+    
+    menu: Menu = menu_select.menu_prompt()
     with Session() as sess:
-        main_action: str = ''
-        while main_action != menu_main.last_action():
-            main_action = menu_main.menu_prompt()
-            print('next action: ', main_action)
-            exec(main_action)
+        action: str = ''
+        while action != menu.last_action():
+            action = menu.menu_prompt()
+            print('next action: ', action)
+            exec(action)
         sess.commit()
     print('Ending normally')

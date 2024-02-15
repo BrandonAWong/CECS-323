@@ -55,7 +55,6 @@ elif introspection_type == INTROSPECT_TABLES:
             self.init_helper(course, sectionNumber, semester, sectionYear, building, room, schedule, startTime, instructor)
     
 
-# init helper
 def init_helper(self, course: Course, sectionNumber: int, semester: str, sectionYear: int,
              building: str, room: int, schedule: str, startTime: Time, instructor: str):
     self.departmentAbbreviation = course.departmentAbbreviation
