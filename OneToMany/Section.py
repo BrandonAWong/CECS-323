@@ -71,7 +71,7 @@ def init_helper(self, course: Course, sectionNumber: int, semester: str, section
 
 
 def __str__(self):
-    return (f"Course number: {self.courseNumber} Course name: {self.name} units: {self.units}\n"
+    return (f"Course number: {self.courseNumber} Course name: {self.course.name}\n"
             f"Section number: {self.sectionNumber} Semester: {self.semester} Section year: {self.sectionYear}\n"
             f"Instructor: {self.instructor} Schedule: {self.schedule} Start time: {self.startTime}\n"
             f"Building: {self.building} Room: {self.room}")
