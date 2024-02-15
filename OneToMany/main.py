@@ -1,6 +1,7 @@
 import logging
+from os import SEEK_HOLE
 # My option lists for
-from menu_definitions import menu_main, debug_select, menu_select, menu_course_section
+from menu_definitions import debug_select, menu_select, section_select
 from IntrospectionFactory import IntrospectionFactory
 from db_connection import engine, Session
 from orm_base import metadata
@@ -241,12 +242,12 @@ def select_student_from_list(session):
 
 def list_department_courses(sess):
     department = select_department(sess)
-    dept_courses: [Course] = department.get_courses()
+    dept_courses: list[Section] = department.get_courses()
     print("Course for department: " + str(department))
     for dept_course in dept_courses:
         print(dept_course)
 
-def add_section(sess):
+def add_section(sess) -> None:
     """
     Prompt the user for the information for a new section and validate
     the input to make sure that we do not create any duplicates.
@@ -282,12 +283,56 @@ def add_section(sess):
     
     sess.add(Section(course, number, semester, year, building, room, schedule, start_time, instructor))
 
+
+def select_section(sess) -> Section:
+    """
+    Select a Section through different uniqueness constraints. 
+    :param sess:    The connection to the database.
+    :return:        The selected section.
+    """
+    command: str = section_select.menu_prompt()
+    while True:
+        year: int = int(input("Section year--> "))
+        semester: str = get_valid_input("Section semester--> ",
+                                        ("Fall", "Spring", "Winter", "Summer I", "Summer II"))
+        schedule: str = get_valid_input("Section schedule--> ",
+                                        ("MW", "TuTh", "MWF", "F", "S")) 
+        start_time: time = time(*[int(e) for e in input("Section time[HH:MM]--> ").split(":")]) 
+        match(command):
+            case("building/room"):
+                building: str = get_valid_input("Section building--> ", 
+                                        ("VEC", "ECS", "EN2", "EN3", "EN4", "ET", "SSPA"))
+                room: int = int(input("Section room--> "))
+                section: Section = sess.query(Section).filter(Section.sectionYear == year, Section.semester == semester,
+                                       Section.schedule == schedule, Section.startTime == start_time, 
+                                       Section.building == building, Section.room == room).first()
+            case("Instructor"):
+                instructor: str = input("Section instructor--> ")
+                section: Section = sess.query(Section).filter(Section.sectionYear == year, Section.semester == semester,
+                                       Section.schedule == schedule, Section.startTime == start_time, 
+                                       Section.instructor == instructor).first() 
+
+        if section:
+            print(section)
+            return section 
+        print("Section not found.  Try again.")
+
 def get_valid_input(prompt: str, valid_entries: tuple | list | set) -> str:
     while True:
         usr_input = input(prompt)
         if usr_input in valid_entries:
             return usr_input
         print(f"Invalid input. Input must only be {valid_entries}.  Try again.")
+
+def list_course_sections(sess) -> None:
+    """
+    List all sections currently in a course.
+    :param sess:    The connection to the database.
+    :return:        None
+    """
+    course: Course = select_course(sess)
+    print(f"Sections for course: {course}")
+    [print(f"{section}\n") for section in course.get_sections()]
 
 
 if __name__ == '__main__':

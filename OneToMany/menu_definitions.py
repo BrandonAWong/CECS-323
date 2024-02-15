@@ -45,13 +45,18 @@ introspection_select = Menu("introspection selectt", 'To introspect or not:', [
 menu_course_section = Menu('course/section', 'Please select one of the following options:', [
     Option("Add course", "add_course(sess)"),
     Option("Add section", "add_section(sess)"),
-    Option("Select section", "find_section(sess)"),
+    Option("Select section", "select_section(sess)"),
     Option("List course sections", "list_course_sections(sess)"),
     Option("Delete course", "delete_course(sess)"),
     Option("Delete section", "delete_section(sess)"),
     Option("Commit", "sess.commit()"),
     Option("Break out into shell", "IPython.embed()"),
     Option("Exit", "pass")
+])
+
+section_select = Menu('section select', 'Please select how you want to select a section:', [
+    Option("Building and Room", "building/room"),
+    Option("Instructor", "instructor")
 ])
 
 menu_select = Menu("select", "Please select what menu you would like to work with:", [
