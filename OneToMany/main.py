@@ -143,6 +143,17 @@ def delete_department(session):
         session.delete(department)
 
 
+def delete_course(sess):
+    print("deleting a course")
+    course: Course = select_course(sess)
+    n_sections: int = sess.query(Section).filter(Section.courseNumber == course.courseNumber).count()
+    if n_sections:
+        print(f"Sorry, there are {n_sections} sections of this course. Delete them first, "
+              "then come back here to delete the course.")
+    else:
+        sess.delete(course)
+
+
 def list_departments(session):
     """
     List all departments, sorted by the abbreviation.
