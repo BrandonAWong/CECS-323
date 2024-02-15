@@ -5,7 +5,6 @@ from sqlalchemy import UniqueConstraint, ForeignKeyConstraint
 from sqlalchemy import String, Integer, Time
 from sqlalchemy.orm import Mapped, mapped_column, relationship, column_property
 from sqlalchemy import Table
-from Department import Department
 from Course import Course 
 from constants import START_OVER, REUSE_NO_INTROSPECTION, INTROSPECT_TABLES
 
@@ -33,13 +32,12 @@ if introspection_type == START_OVER or introspection_type == REUSE_NO_INTROSPECT
         startTime: Mapped[Time] = mapped_column('start_time', Time)
         instructor: Mapped[str] = mapped_column('instructor', String(80), nullable=False)
 
-        __table_args__ = (UniqueConstraint("year", "semester", "schedule", "start_time", 
+        __table_args__ = (UniqueConstraint("section_year", "semester", "schedule", "start_time", 
                                            "building", "room", name="sections_uk_01"),
-                          UniqueConstraint("year", "semester", "schedule", "start_time", 
+                          UniqueConstraint("section_year", "semester", "schedule", "start_time", 
                                            "instructor", name="sections_uk_02"),
-                          ForeignKeyConstraint([departmentAbbreviation],
-                                               [Department.abbreviation]),
-                          ForeignKeyConstraint([courseNumber], [Course.courseNumber]))
+                          ForeignKeyConstraint([departmentAbbreviation, courseNumber],
+                                               [Course.departmentAbbreviation, Course.courseNumber]))
 
 elif introspection_type == INTROSPECT_TABLES:
     class Section(Base):
