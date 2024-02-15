@@ -247,6 +247,7 @@ def list_department_courses(sess):
     for dept_course in dept_courses:
         print(dept_course)
 
+
 def add_section(sess) -> None:
     """
     Prompt the user for the information for a new section and validate
@@ -317,12 +318,18 @@ def select_section(sess) -> Section:
             return section 
         print("Section not found.  Try again.")
 
+
 def get_valid_input(prompt: str, valid_entries: tuple | list | set) -> str:
     while True:
         usr_input = input(prompt)
         if usr_input in valid_entries:
             return usr_input
         print(f"Invalid input. Input must only be {valid_entries}.  Try again.")
+
+
+def delete_section(sess) -> None:
+    print("deleting a section")
+    sess.delete(select_section(sess))
 
 def list_course_sections(sess) -> None:
     """
