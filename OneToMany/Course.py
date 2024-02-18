@@ -65,6 +65,8 @@ elif introspection_type == INTROSPECT_TABLES:
         # Otherwise, this property will be named course_number
         courseNumber: Mapped[int] = column_property(__table__.c.course_number)
 
+        sections: Mapped[list["Section"]] = relationship(back_populates="course")
+
         def __init__(self, department: Department, courseNumber: int, name: str, description: str, units: int):
             self.set_department(department)
             self.courseNumber = courseNumber
