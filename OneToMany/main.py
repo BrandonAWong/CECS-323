@@ -527,7 +527,7 @@ def select_section(sess) -> Section:
                 section: Section = sess.query(Section).filter(Section.sectionYear == year, Section.semester == semester,
                                        Section.schedule == schedule, Section.startTime == start_time, 
                                        Section.building == building, Section.room == room).first()
-            case("Instructor"):
+            case("instructor"):
                 instructor: str = input("Section instructor--> ")
                 section: Section = sess.query(Section).filter(Section.sectionYear == year, Section.semester == semester,
                                        Section.schedule == schedule, Section.startTime == start_time, 
