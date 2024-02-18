@@ -12,6 +12,65 @@ variables are constructed.  To be honest, I'm not sure whether these are global
 variables or not in Python.
 """
 
+menu_department = Menu('department', 'Please select what to do with the department:', [
+    Option("Add Department", "add_department(sess)"),
+    Option("Select Department", "find_department(sess)"),
+    Option("Delete Department", "delete_department(sess)"),
+    Option("List all departments", "list_departments(sess)"),
+    Option("List department courses", "list_department_courses(sess)"),
+    Option("Commit", "sess.commit()"),
+    Option("Break out into shell", "IPython.embed()"),
+    Option("Back", "back"),
+    Option("Exit", "pass")
+])
+
+department_select = Menu('department select', "Please select how you want to select a department:", [
+    Option("Abbreviation", "abbreviation"),
+    Option("Chair Name", "chair"),
+    Option("Building and Office", "building/office"),
+    Option("Description", "description")
+])
+
+menu_student = Menu('student', 'Please select what to do with the student:', [
+    Option("Add student", "add_student(sess)"),
+    Option("Delete student", "delete_student(sess)"),
+    Option("List all students", "list_students(sess)"),
+    Option("Select student from list", "select_student_from_list(sess)"),
+    Option("Commit", "sess.commit()"),
+    Option("Break out into shell", "IPython.embed()"),
+    Option("Back", "back"),
+    Option("Exit", "pass")
+])
+
+student_select = Menu('student select', 'Please select how you want to select a student:', [
+    Option("ID", "ID"),
+    Option("First and last name", "first/last name"),
+    Option("Electronic mail", "email")
+])
+
+menu_course = Menu('course', 'Please select what to do with the course:', [
+    Option("Add course", "add_course(sess)"),
+    Option("Delete course", "delete_course(sess)"),
+    Option("Select course", "select_course(sess)"),
+    Option("List all courses", "list_courses(sess)"),
+    Option("List course sections", "list_course_sections(sess)"),
+    Option("Move course to new department", "move_course_to_new_department(sess)"),
+    Option("Commit", "sess.commit()"),
+    Option("Break out into shell", "IPython.embed()"),
+    Option("Back", "back"),
+    Option("Exit", "pass")
+])
+
+menu_section = Menu('section', 'Please select what to do with the section:', [
+    Option("Add section", "add_section(sess)"),
+    Option("Delete section", "delete_section(sess)"),
+    Option("Select section", "select_section(sess)"),
+    Option("Commit", "sess.commit()"),
+    Option("Break out into shell", "IPython.embed()"),
+    Option("Back", "back"),
+    Option("Exit", "pass")
+])
+
 # The main options for operating on Departments and Courses.
 menu_main = Menu('main', 'Please select one of the following options:', [
     Option("Add department", "add_department(sess)"),
@@ -64,5 +123,11 @@ section_select = Menu('section select', 'Please select how you want to select a 
 
 menu_select = Menu("select", "Please select what menu you would like to work with:", [
     Option("Main", menu_main),
-    Option("Simplified", menu_course_section)
+    Option("Simplified (Course and Section)", menu_course_section),
+    Option("Student", menu_student),
+    Option("Department", menu_department),
+    Option("Course", menu_course),
+    Option("Section", menu_section)
 ])
+
+

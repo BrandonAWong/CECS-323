@@ -54,6 +54,7 @@ if introspection_type == START_OVER or introspection_type == REUSE_NO_INTROSPECT
             self.name = name
             self.description = description
             self.units = units
+            
 elif introspection_type == INTROSPECT_TABLES:
     class Course(Base):
         __table__ = Table(table_name, Base.metadata, autoload_with=engine)

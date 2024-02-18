@@ -11,7 +11,7 @@ from constants import START_OVER, REUSE_NO_INTROSPECTION, INTROSPECT_TABLES
 introspection_type = IntrospectionFactory().introspection_type
 if introspection_type == START_OVER or introspection_type == REUSE_NO_INTROSPECTION:
     class Section(Base):
-        """DEFINTION"""
+        """DEFINTION""" #NEED TO DO THIS
         __tablename__ = "sections"
 
         course: Mapped["Course"] = relationship(back_populates="sections")
@@ -49,6 +49,14 @@ elif introspection_type == INTROSPECT_TABLES:
         departmentAbbreviation: Mapped[str] = column_property(__table__.c.department_abbreviation)
         courseNumber: Mapped[int] = column_property(__table__.c.course_number)
         course: Mapped["Course"] = relationship(back_populates="sections")
+        sectionNumber: Mapped[int] = column_property(__table__.c.section_number)
+        semester: Mapped[str] = column_property(__table__.c.semester)
+        sectionYear: Mapped[int] = column_property(__table__.c.section_year)
+        building: Mapped[str] = column_property(__table__.c.building)
+        room: Mapped[int] = column_property(__table__.c.room)
+        schedule: Mapped[str] = column_property(__table__.c.schedule)
+        startTime: Mapped[Time] = column_property(__table__.c.start_time)
+        instructor: Mapped[str] = column_property(__table__.c.instructor)
 
         def __init__(self, course: Course, sectionNumber: int, semester: str, sectionYear: int,
              building: str, room: int, schedule: str, startTime: Time, instructor: str):

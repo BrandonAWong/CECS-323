@@ -39,6 +39,11 @@ if introspection_type == START_OVER or introspection_type == REUSE_NO_INTROSPECT
         those class definition files."""
         courses: Mapped[List["Course"]] = DC.courses
         name: Mapped[str] = DC.name
+        chairName: Mapped[str] = DC.chairName
+        building: Mapped[str] = DC.building
+        office: Mapped[int] = DC.office
+        description: Mapped[str] = DC.description
+        
         # __table_args__ can best be viewed as directives that we ask SQLAlchemy to
         # send to the database.  In this case, that we want two separate uniqueness
         # constraints (candidate keys).
@@ -48,9 +53,14 @@ if introspection_type == START_OVER or introspection_type == REUSE_NO_INTROSPECT
         leave that out when the class is initially declared, and then add it in afterwards.
         So I'm defining the exact same __init__ method both for the start over as well
         as the introspection case just to get past this interesting issue and move on."""
-        def __init__(self, abbreviation: str, name: str):
-            self.abbreviation = abbreviation
+        def __init__(self, name: str, abbreviation: str, chair: str, building: str, office: int, description: str):
             self.name = name
+            self.abbreviation = abbreviation
+            self.chairName = chair
+            self.building = building
+            self.office = office
+            self.description = description
+
 elif introspection_type == INTROSPECT_TABLES:
     # We need to connect to the database to introspect the table.  So I'm getting that done
     # now, rather than in main.  Connection is a singleton factory of sorts.
@@ -67,11 +77,21 @@ elif introspection_type == INTROSPECT_TABLES:
         # I'm not actually overriding the attribute name here, I just want to see if I can do it.
         # The __table__ attribute refers to the Table object that we created by introspection.
         # More on metadata: https://docs.sqlalchemy.org/en/20/core/metadata.html
+        name: Mapped[str] = column_property(__table__.c.name)
         abbreviation: Mapped[str] = column_property(__table__.c.abbreviation)
+        courses: Mapped[List["Course"]] = DC.courses
+        chairName: Mapped[str] = column_property(__table__.c.chair_name)
+        building: Mapped[str] = column_property(__table__.c.building)
+        office: Mapped[int] = column_property(__table__.c.office)
+        description: Mapped[str] = column_property(__table__.c.description)
 
-        def __init__(self, abbreviation: str, name: str):
-            self.abbreviation = abbreviation
+        def __init__(self, name: str, abbreviation: str, chair: str, building: str, office: int, description: str):
             self.name = name
+            self.abbreviation = abbreviation
+            self.chairName = chair
+            self.building = building
+            self.office = office
+            self.description = description
 
 """I tried to bring in __init__ from the imported code in each of these two (see below)
 ways, and in both cases when I tried to use the __init__ constructor, it blew up with
