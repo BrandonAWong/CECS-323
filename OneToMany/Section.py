@@ -11,7 +11,9 @@ from constants import START_OVER, REUSE_NO_INTROSPECTION, INTROSPECT_TABLES
 introspection_type = IntrospectionFactory().introspection_type
 if introspection_type == START_OVER or introspection_type == REUSE_NO_INTROSPECTION:
     class Section(Base):
-        """DEFINTION""" #NEED TO DO THIS
+        """An individual instance of a course within a university in which students 
+        can enroll. Said instances are commonly differentiated by an integer with two 
+        digits. Examples may include: Section 03 of the course CECS 323.""" 
         __tablename__ = "sections"
 
         course: Mapped["Course"] = relationship(back_populates="sections")
