@@ -86,6 +86,7 @@ menu_main = Menu('main', 'Please select one of the following options:', [
     Option("Move course to new department", "move_course_to_new_department(sess)"),
     Option("Commit", "sess.commit()"),
     Option("Break out into shell", "IPython.embed()"),
+    Option("Back", "back"),
     Option("Exit", "pass")
 ])
 
@@ -113,6 +114,7 @@ menu_course_section = Menu('course/section', 'Please select one of the following
     Option("Delete section", "delete_section(sess)"),
     Option("Commit", "sess.commit()"),
     Option("Break out into shell", "IPython.embed()"),
+    Option("Back", "back"),
     Option("Exit", "pass")
 ])
 

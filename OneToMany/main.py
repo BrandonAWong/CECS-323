@@ -1,7 +1,7 @@
 import logging
-from os import SEEK_HOLE
+# from os import SEEK_HOLE
 # My option lists for
-from menu_definitions import debug_select, menu_select, section_select
+from menu_definitions import debug_select, menu_select, section_select, department_select, student_select
 from IntrospectionFactory import IntrospectionFactory
 from db_connection import engine, Session
 from orm_base import metadata
@@ -589,6 +589,7 @@ if __name__ == '__main__':
             action = menu.menu_prompt()
             if action == "back":
                 menu = menu_select.menu_prompt()
+                continue
             print('next action: ', action)
             exec(action)
         sess.commit()
