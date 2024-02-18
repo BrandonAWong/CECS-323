@@ -40,7 +40,7 @@ elif introspection_type == INTROSPECT_TABLES:
         to the university.  For instance, open enrollment students have not (yet) been
         admitted to the university, but they are still students."""
         __table__ = Table(table_name, Base.metadata, autoload_with=engine) 
-        studentId: Mapped[int] = column_property(__table__.c.student_ID)
+        studentId: Mapped[int] = column_property(__table__.c.student_id)
         lastName: Mapped[str] = column_property(__table__.c.last_name)
         firstName: Mapped[str] = column_property(__table__.c.first_name)
         eMail: Mapped[str] = column_property(__table__.c.e_mail)
