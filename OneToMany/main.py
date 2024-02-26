@@ -481,6 +481,12 @@ def add_section(sess) -> None:
         year: int = int(input("Section year--> "))
         semester: str = get_valid_input("Section semester--> ",
                                         ("Fall", "Spring", "Winter", "Summer I", "Summer II"))
+
+        if (sess.query(Section).filter(Section.course == course, Section.number == number,
+                                       Section.year == year, Section.semester == semester).count()):
+            print("We already have a section with that number.  Try again")
+            continue
+
         schedule: str = get_valid_input("Section schedule--> ",
                                         ("MW", "TuTh", "MWF", "F", "S")) 
         start_time: time = time(*[int(e) for e in input("Section time[HH:MM]--> ").split(":")]) 
