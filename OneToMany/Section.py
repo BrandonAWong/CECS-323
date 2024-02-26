@@ -1,7 +1,7 @@
 from orm_base import Base
 from db_connection import engine
 from IntrospectionFactory import IntrospectionFactory
-from sqlalchemy import UniqueConstraint, ForeignKeyConstraint
+from sqlalchemy import UniqueConstraint, ForeignKeyConstraint, CheckConstraint
 from sqlalchemy import String, Integer, Time
 from sqlalchemy.orm import Mapped, mapped_column, relationship, column_property
 from sqlalchemy import Table
@@ -24,13 +24,18 @@ if introspection_type == START_OVER or introspection_type == REUSE_NO_INTROSPECT
                                                   nullable=False, primary_key=True)
         sectionNumber: Mapped[int] = mapped_column('section_number', Integer,
                                                   nullable=False, primary_key=True)
-        semester: Mapped[str] = mapped_column('semester', String(10), nullable=False,
-                                                  primary_key=True)
+        semester: Mapped[str] = mapped_column('semester', String(10), 
+                                                  CheckConstraint('semester IN ("Fall", "Spring", "Winter", "Summer I", "Summer II")'),
+                                                  nullable=False, primary_key=True)
         sectionYear: Mapped[int] = mapped_column('section_year', Integer, nullable=False,
                                                   primary_key=True)
-        building: Mapped[str] = mapped_column('building', String(6), nullable=False)
+        building: Mapped[str] = mapped_column('building', String(6),
+                                                  CheckConstraint('building IN ("VEC", "ECS", "EN2", "EN3", "EN4", "ET", "SSPA")'), 
+                                                  nullable=False)
         room: Mapped[int] = mapped_column('room', Integer, nullable=False)
-        schedule: Mapped[str] = mapped_column('schedule', String(6), nullable=False)
+        schedule: Mapped[str] = mapped_column('schedule', String(6),
+                                                  CheckConstraint('schedule IN ("MW", "TuTh", "MWF", "F", "S")'),
+                                                  nullable=False)
         startTime: Mapped[Time] = mapped_column('start_time', Time, nullable=False)
         instructor: Mapped[str] = mapped_column('instructor', String(80), nullable=False)
 
