@@ -25,16 +25,13 @@ if introspection_type == START_OVER or introspection_type == REUSE_NO_INTROSPECT
         sectionNumber: Mapped[int] = mapped_column('section_number', Integer,
                                                   nullable=False, primary_key=True)
         semester: Mapped[str] = mapped_column('semester', String(10), 
-                                                  CheckConstraint('semester IN ("Fall", "Spring", "Winter", "Summer I", "Summer II")'),
                                                   nullable=False, primary_key=True)
         sectionYear: Mapped[int] = mapped_column('section_year', Integer, nullable=False,
                                                   primary_key=True)
         building: Mapped[str] = mapped_column('building', String(6),
-                                                  CheckConstraint('building IN ("VEC", "ECS", "EN2", "EN3", "EN4", "ET", "SSPA")'), 
                                                   nullable=False)
         room: Mapped[int] = mapped_column('room', Integer, nullable=False)
         schedule: Mapped[str] = mapped_column('schedule', String(6),
-                                                  CheckConstraint('schedule IN ("MW", "TuTh", "MWF", "F", "S")'),
                                                   nullable=False)
         startTime: Mapped[Time] = mapped_column('start_time', Time, nullable=False)
         instructor: Mapped[str] = mapped_column('instructor', String(80), nullable=False)
@@ -44,7 +41,14 @@ if introspection_type == START_OVER or introspection_type == REUSE_NO_INTROSPECT
                           UniqueConstraint("section_year", "semester", "schedule", "start_time", 
                                            "instructor", name="sections_uk_02"),
                           ForeignKeyConstraint([departmentAbbreviation, courseNumber],
-                                               [Course.departmentAbbreviation, Course.courseNumber]))
+                                               [Course.departmentAbbreviation, Course.courseNumber], 
+                                               name="sections_courses_fk_01"),
+                          CheckConstraint("semester IN ('Fall', 'Spring', 'Winter', 'Summer I', 'Summer II')",
+                                          name="sections_semester_verification"),
+                          CheckConstraint("building IN ('VEC', 'ECS', 'EN2', 'EN3', 'EN4', 'ET', 'SSPA')",
+                                          name="sections_building_verification"), 
+                          CheckConstraint("schedule IN ('MW', 'TuTh', 'MWF', 'F', 'S')", 
+                                          name="sections_schedule_verification"))
 
         def __init__(self, course: Course, sectionNumber: int, semester: str, sectionYear: int,
              building: str, room: int, schedule: str, startTime: Time, instructor: str):
