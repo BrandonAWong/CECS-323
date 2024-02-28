@@ -482,8 +482,8 @@ def add_section(sess) -> None:
         semester: str = get_valid_input("Section semester--> ",
                                         ("Fall", "Spring", "Winter", "Summer I", "Summer II"))
 
-        if (sess.query(Section).filter(Section.course == course, Section.number == number,
-                                       Section.year == year, Section.semester == semester).count()):
+        if (sess.query(Section).filter(Section.course == course, Section.sectionNumber == number,
+                                       Section.sectionYear == year, Section.semester == semester).count()):
             print("We already have a section with that number.  Try again")
             continue
 
