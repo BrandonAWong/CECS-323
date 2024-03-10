@@ -550,6 +550,10 @@ def list_course(sess: Session):
         print(course)
 
 
+def list_section(sess:Session) -> None:
+    [print(section) for section in list(sess.query(Section).order_by(Section.sectionNumber))]
+
+
 def list_student(sess: Session):
     """
     List all Students currently in the database.
