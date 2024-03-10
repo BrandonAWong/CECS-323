@@ -88,6 +88,7 @@ department_select = Menu('department select', "Please select how you want to sel
 ])
 
 section_select = Menu('section select', 'Please select how you want to select a section:', [
+    Option("Department and Course and Section Number", "course/section_num"),
     Option("Building and Room", "building/room"),
     Option("Instructor", "instructor")
 ])

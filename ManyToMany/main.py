@@ -365,25 +365,38 @@ def select_section(sess) -> Section:
     """
     command: str = section_select.menu_prompt()
     while True:
-        year: int = int(input("Section year--> "))
-        semester: str = get_valid_input("Section semester--> ",
-                                        ("Fall", "Spring", "Winter", "Summer I", "Summer II"))
-        schedule: str = get_valid_input("Section schedule--> ",
-                                        ("MW", "TuTh", "MWF", "F", "S")) 
-        start_time: time = time(*[int(e) for e in input("Section time[HH:MM]--> ").split(":")]) 
-        match(command):
-            case("building/room"):
-                building: str = get_valid_input("Section building--> ", 
-                                        ("VEC", "ECS", "EN2", "EN3", "EN4", "ET", "SSPA"))
-                room: int = int(input("Section room--> "))
-                section: Section = sess.query(Section).filter(Section.sectionYear == year, Section.semester == semester,
-                                       Section.schedule == schedule, Section.startTime == start_time, 
-                                       Section.building == building, Section.room == room).first()
-            case("instructor"):
-                instructor: str = input("Section instructor--> ")
-                section: Section = sess.query(Section).filter(Section.sectionYear == year, Section.semester == semester,
-                                       Section.schedule == schedule, Section.startTime == start_time, 
-                                       Section.instructor == instructor).first() 
+        try:
+            year: int = int(input("Section year--> "))
+            semester: str = get_valid_input("Section semester--> ",
+                                            ("Fall", "Spring", "Winter", "Summer I", "Summer II"))
+            schedule: str = get_valid_input("Section schedule--> ",
+                                            ("MW", "TuTh", "MWF", "F", "S")) 
+            start_time: time = time(*[int(e) for e in input("Section time[HH:MM]--> ").split(":")]) 
+            match(command):
+                case("course/section_num"):
+                    course: Course = select_course(sess)
+                    section_number: int = int(input("Section number--> "))
+                    section: Section = sess.query(Section).filter(Section.sectionYear == year, Section.semester == semester,
+                                            Section.schedule == schedule, Section.startTime == start_time,
+                                            Section.courseNumber == course.courseNumber, 
+                                            Section.departmentAbbreviation == course.departmentAbbreviation,
+                                            Section.sectionNumber == section_number).first()
+                case("building/room"):
+                    building: str = get_valid_input("Section building--> ", 
+                                            ("VEC", "ECS", "EN2", "EN3", "EN4", "ET", "SSPA"))
+                    room: int = int(input("Section room--> "))
+                    section: Section = sess.query(Section).filter(Section.sectionYear == year, Section.semester == semester,
+                                           Section.schedule == schedule, Section.startTime == start_time, 
+                                           Section.building == building, Section.room == room).first()
+                case("instructor"):
+                    instructor: str = input("Section instructor--> ")
+                    section: Section = sess.query(Section).filter(Section.sectionYear == year, Section.semester == semester,
+                                           Section.schedule == schedule, Section.startTime == start_time, 
+                                           Section.instructor == instructor).first() 
+
+        except ValueError:
+            print("Invalid Input.  Try again.")
+
         if section:
             print(section)
             return section
