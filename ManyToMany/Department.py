@@ -70,7 +70,7 @@ if introspection_type == START_OVER or introspection_type == REUSE_NO_INTROSPECT
         def get_majors(self):
             return self.majors
 
-    def __str__(self):
-        return (f"Department: {self.name} / {self.abbreviation}\n{self.description}\n"
-                f"The chair, {self.chairName} is located at {self.building} {self.office} number course offered: {len(self.courses)}")
+        def __str__(self):
+            return (f"Department: {self.name} / {self.abbreviation}\n{self.description}\n"
+                    f"The chair, {self.chairName} is located at {self.building} {self.office} number course offered: {len(self.courses)}")
 
