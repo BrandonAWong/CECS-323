@@ -692,14 +692,15 @@ def boilerplate(sess):
     :return:        None
     """
     department: Department = Department("Computer Science", "CECS", "Joe biden", "ECS", 1, "hello!")
-    course = Course(department, 323, "Data", "yolo", 3)
-    section1 = Section(course, 3, "Spring", 2024, "ECS", 2, "MW", time(12, 30), "Donald")
-    section2 = Section(course, 1, "Spring", 2024, "ECS", 2, "F", time(12, 30), "Donald")
+    course: Course = Course(department, 323, "Data", "yolo", 3)
+    section1: Section = Section(course, 3, "Spring", 2024, "ECS", 2, "MW", time(12, 30), "Donald")
+    section2: Section = Section(course, 1, "Spring", 2024, "ECS", 2, "F", time(12, 30), "Donald")
     major1: Major = Major(department, 'Computer Science', 'Fun with blinking lights')
     major2: Major = Major(department, 'Computer Engineering', 'Much closer to the silicon')
     student1: Student = Student('Brown', 'David', 'david.brown@gmail.com')
     student2: Student = Student('Brown', 'Mary', 'marydenni.brown@gmail.com')
     student3: Student = Student('Disposable', 'Bandit', 'disposable.bandit@gmail.com')
+    student4: Student = Student("Major", "Null", "null@gmail.com")
     student1.add_major(major1)
     student2.add_major(major1)
     student2.add_major(major2)
@@ -712,6 +713,7 @@ def boilerplate(sess):
     sess.add(course)
     sess.add(section1)
     sess.add(section2)
+    sess.add(student4)
     sess.flush()                                # Force SQLAlchemy to update the database, although not commit
 
 
