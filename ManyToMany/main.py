@@ -223,7 +223,9 @@ def add_student_section(sess: Session) -> None:
         if not sess.query(Enrollment).filter(Enrollment.studentId == student.studentID, 
                 Enrollment.departmentAbbreviatoin == section.departmentAbbreviation,
                 Enrollment.courseNumber == section.courseNumber,
-                Enrollment.sectionNumber == section.sectionNumber).count():
+                Enrollment.sectionNumber == section.sectionNumber,
+                Enrollment.semester == section.semester,
+                Enrollment.sectionYear == section.sectionYear).count():
             break
         print("That student is already in the section")
     student.add_section(section)
@@ -238,7 +240,9 @@ def add_section_student(sess: Session) -> None:
         if not sess.query(Enrollment).filter(Enrollment.studentId == student.studentID, 
                 Enrollment.departmentAbbreviatoin == section.departmentAbbreviation,
                 Enrollment.courseNumber == section.courseNumber,
-                Enrollment.sectionNumber == section.sectionNumber).count():
+                Enrollment.sectionNumber == section.sectionNumber,
+                Enrollment.semester == section.semester,
+                Enrollment.sectionYear == section.sectionYear).count():
             break
         print("That section already hast this student")
     section.add_student(student)

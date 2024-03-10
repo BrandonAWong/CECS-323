@@ -16,11 +16,15 @@ if introspection_type == START_OVER or introspection_type == REUSE_NO_INTROSPECT
                                                   nullable=False, primary_key=True)
         sectionNumber: Mapped[int] = mapped_column('section_number', Integer,
                                                   nullable=False, primary_key=True)
+        semester: Mapped[str] = mapped_column('semester', String(10), 
+                                                  nullable=False, primary_key=True)
+        sectionYear: Mapped[int] = mapped_column('section_year', Integer, nullable=False,
+                                                  primary_key=True) 
         student: Mapped["Student"] = relationship(back_populates="majors")
         studentId: Mapped[int] = mapped_column('student_id', ForeignKey("students.student_id"), primary_key=True)
 
         __table_args__ = (ForeignKeyConstraint([departmentAbbreviation, courseNumber, sectionNumber],
-                                               ["Section".departmentAbbreviation, "Section".courseNumber, "Section".sectionNumber],
+                                               ["Section.departmentAbbreviation", "Section.courseNumber", "Section.sectionNumber"],
                                               name="enrollments_sections_fk_01"),
                           UniqueConstraint("department_abbreviation", "course_number", "section_year", "semester", "student_id", name="enrollments_uk_01"))
 
@@ -29,6 +33,8 @@ if introspection_type == START_OVER or introspection_type == REUSE_NO_INTROSPECT
             self.departmentAbbreviation = section.departmentAbbreviation
             self.courseNumber = section.courseNumber
             self.sectionNumber = section.sectionNumber
+            self.semester = section.semester
+            self.sectionYear = section.sectionYear
             self.student = student
             self.studentId = student.studentID
 
