@@ -1,6 +1,6 @@
 import logging
 from constants import *
-from menu_definitions import menu_main, add_menu, delete_menu, list_menu, debug_select, introspection_select
+from menu_definitions import menu_main, debug_select, section_select
 from IntrospectionFactory import IntrospectionFactory
 from db_connection import engine, Session
 from orm_base import metadata
@@ -11,31 +11,14 @@ from Course import Course
 from Major import Major
 from Student import Student
 from StudentMajor import StudentMajor
+from Section import Section
+from Enrollment import Enrollment
 from Option import Option
 from Menu import Menu
 from SQLAlchemyUtilities import check_unique
+from datetime import time
 from pprint import pprint
 
-
-def add(sess: Session):
-    add_action: str = ''
-    while add_action != add_menu.last_action():
-        add_action = add_menu.menu_prompt()
-        exec(add_action)
-
-
-def delete(sess: Session):
-    delete_action: str = ''
-    while delete_action != delete_menu.last_action():
-        delete_action = delete_menu.menu_prompt()
-        exec(delete_action)
-
-
-def list_objects(sess: Session):
-    list_action: str = ''
-    while list_action != list_menu.last_action():
-        list_action = list_menu.menu_prompt()
-        exec(list_action)
 
 
 def add_department(session: Session):
@@ -211,15 +194,13 @@ def add_student_major(sess):
 
 
 def add_major_student(sess):
-    major: Major = select_major(sess)
-    student: Student = select_student(sess)
-    student_major_count: int = sess.query(StudentMajor).filter(StudentMajor.studentId == student.studentID,
-                                                               StudentMajor.majorName == major.name).count()
-    unique_student_major: bool = student_major_count == 0
-    while not unique_student_major:
+    while True:
+        major: Major = select_major(sess)
+        student: Student = select_student(sess)
+        if not sess.query(StudentMajor).filter(StudentMajor.studentId == student.studentID,
+                                                StudentMajor.majorName == major.name).count():
+            break
         print("That major already has that student.  Try again.")
-        major = select_major(sess)
-        student = select_student(sess)
     major.add_student(student)
     """The major object instance is mapped to a specific row in the Major table.  But adding
     the new student to its list of students does not add the new StudentMajor instance to this session.
@@ -234,6 +215,35 @@ def add_major_student(sess):
     sess.add(major)                           # add the StudentMajor to the session
     sess.flush()
 
+
+def add_student_section(sess: Session) -> None:
+    while True:
+        student: Student = select_student(sess)
+        section: Section = select_section(sess)
+        if not sess.query(Enrollment).filter(Enrollment.studentId == student.studentID, 
+                Enrollment.departmentAbbreviatoin == section.departmentAbbreviation,
+                Enrollment.courseNumber == section.courseNumber,
+                Enrollment.sectionNumber == section.sectionNumber).count():
+            break
+        print("That student is already in the section")
+    student.add_section(section)
+    sess.add(student)
+    sess.flush()
+    
+
+def add_section_student(sess: Session) -> None:
+    while True:
+        section: Section = select_section(sess)
+        student: Student = select_student(sess)
+        if not sess.query(Enrollment).filter(Enrollment.studentId == student.studentID, 
+                Enrollment.departmentAbbreviatoin == section.departmentAbbreviation,
+                Enrollment.courseNumber == section.courseNumber,
+                Enrollment.sectionNumber == section.sectionNumber).count():
+            break
+        print("That section already hast this student")
+    section.add_student(student)
+    sess.add(section)
+    sess.flush()
 
 def select_department(sess: Session) -> Department:
     """
@@ -278,6 +288,33 @@ def select_course(sess: Session) -> Course:
                                        Course.courseNumber == course_number).first()
     return course
 
+def select_section(sess) -> Section:
+    """
+    Select a Section through different uniqueness constraints. 
+    :param sess:    The connection to the database.
+    :return:        The selected section.
+    """
+    command: str = section_select.menu_prompt()
+    while True:
+        year: int = int(input("Section year--> "))
+        semester: str = get_valid_input("Section semester--> ",
+                                        ("Fall", "Spring", "Winter", "Summer I", "Summer II"))
+        schedule: str = get_valid_input("Section schedule--> ",
+                                        ("MW", "TuTh", "MWF", "F", "S")) 
+        start_time: time = time(*[int(e) for e in input("Section time[HH:MM]--> ").split(":")]) 
+        match(command):
+            case("building/room"):
+                building: str = get_valid_input("Section building--> ", 
+                                        ("VEC", "ECS", "EN2", "EN3", "EN4", "ET", "SSPA"))
+                room: int = int(input("Section room--> "))
+                section: Section = sess.query(Section).filter(Section.sectionYear == year, Section.semester == semester,
+                                       Section.schedule == schedule, Section.startTime == start_time, 
+                                       Section.building == building, Section.room == room).first()
+            case("instructor"):
+                instructor: str = input("Section instructor--> ")
+                section: Section = sess.query(Section).filter(Section.sectionYear == year, Section.semester == semester,
+                                       Section.schedule == schedule, Section.startTime == start_time, 
+                                       Section.instructor == instructor).first() 
 
 def select_student(sess) -> Student:
     """
@@ -363,7 +400,7 @@ def delete_student_major(sess):
     student.remove_major(major)
 
 
-def delete_major_student(sess):
+def delete_major_student(sess: Session):
     """Remove a student from a particular major.
     :param sess:    The current database session.
     :return:        None
@@ -374,6 +411,24 @@ def delete_major_student(sess):
     major.remove_student(student)
 
 
+def delete_student(sess: Session) -> None:
+    print("deleting a student")
+    student: Student = select_student(sess)
+    if student.sections:
+        print(f"Student is in {len(student.sections)}.  Remove those first before removing student")
+    else:
+        sess.delete(student)
+
+
+def delete_section(sess: Session) -> None:
+    print("deleting a section")
+    section: Section = select_section(sess)
+    if section.students:
+        print(f"Section contains {len(section.students)} students.  Delete them first then try again.")
+    else:
+        sess.delete(section)
+
+
 def list_department(session: Session):
     """
     List all departments, sorted by the abbreviation.
@@ -382,7 +437,7 @@ def list_department(session: Session):
     """
     # session.query returns an iterator.  The list function converts that iterator
     # into a list of elements.  In this case, they are instances of the Student class.
-    departments: [Department] = list(session.query(Department).order_by(Department.abbreviation))
+    departments: list[Department] = list(session.query(Department).order_by(Department.abbreviation))
     for department in departments:
         print(department)
 
@@ -504,8 +559,8 @@ def select_student_from_list(session):
     """
     # query returns an iterator of Student objects, I want to put those into a list.  Technically,
     # that was not necessary, I could have just iterated through the query output directly.
-    students: [Department] = list(sess.query(Department).order_by(Department.lastName, Department.firstName))
-    options: [Option] = []  # The list of menu options that we're constructing.
+    students: list[Department] = list(sess.query(Department).order_by(Department.lastName, Department.firstName))
+    options: list[Option] = []  # The list of menu options that we're constructing.
     for student in students:
         # Each time we construct an Option instance, we put the full name of the student into
         # the "prompt" and then the student ID (albeit as a string) in as the "action".
@@ -523,10 +578,17 @@ def select_student_from_list(session):
 
 def list_department_courses(sess):
     department = select_department(sess)
-    dept_courses: [Course] = department.get_courses()
+    dept_courses: list[Course] = department.get_courses()
     print("Course for department: " + str(department))
     for dept_course in dept_courses:
         print(dept_course)
+
+
+def list_enrollments(sess) -> None:
+    if get_valid_input("Start search with Student or Section?\n  1. Student\n  2. Section\n", ("1", "2")) == "1":
+        [print(section) for section in select_student(sess).sections]
+    else:
+        [print(student) for student in select_section(sess).students]
 
 
 def boilerplate(sess):
@@ -537,7 +599,7 @@ def boilerplate(sess):
     :param sess:    The session that's open.
     :return:        None
     """
-    department: Department = Department('CECS', 'Computer Engineering Computer Science')
+    department: Department = Department("Computer Science", "CECS", "Joe biden", "ECS", 1, "hello!")
     major1: Major = Major(department, 'Computer Science', 'Fun with blinking lights')
     major2: Major = Major(department, 'Computer Engineering', 'Much closer to the silicon')
     student1: Student = Student('Brown', 'David', 'david.brown@gmail.com')
@@ -568,6 +630,20 @@ def session_rollback(sess):
     exec(confirm_menu.menu_prompt())
 
 
+def unenroll_student(sess: Session) -> None:
+    if get_valid_input("Start search with Student or Section?\n  1. Student\n  2. Section\n", ("1", "2")) == "1":
+        select_student(sess).remove_enrollment(select_section(sess))
+    else:
+        select_section(sess).remove_enrollment(select_student(sess))
+
+
+def get_valid_input(prompt: str, valid_entries: tuple | list | set) -> str:
+    while True:
+        usr_input = input(prompt)
+        if usr_input in valid_entries:
+            return usr_input
+        print(f"Invalid input. Input must only be {valid_entries}.  Try again.")
+
 if __name__ == '__main__':
     print('Starting off')
     logging.basicConfig()
@@ -593,11 +669,14 @@ if __name__ == '__main__':
     elif introspection_mode == REUSE_NO_INTROSPECTION:
         print("Assuming tables match class definitions")
 
+    menu = menu_main.menu_prompt()
     with Session() as sess:
-        main_action: str = ''
-        while main_action != menu_main.last_action():
-            main_action = menu_main.menu_prompt()
-            print('next action: ', main_action)
-            exec(main_action)
+        action: str = ''
+        while action != menu_main.last_action():
+            action = menu_main.menu_prompt()
+            if action != "back":
+                menu = menu_main.menu_prompt()
+            print('next action: ', action)
+            exec(action)
         sess.commit()
     print('Ending normally')

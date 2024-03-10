@@ -12,17 +12,6 @@ variables are constructed.  To be honest, I'm not sure whether these are global
 variables or not in Python.
 """
 
-# The main options for operating on Departments and Courses.
-menu_main = Menu('main', 'Please select one of the following options:', [
-    Option("Add", "add(sess)"),
-    Option("List", "list_objects(sess)"),
-    Option("Delete", "delete(sess)"),
-    Option("Boilerplate Data", "boilerplate(sess)"),
-    Option("Commit", "sess.commit()"),
-    Option("Rollback", "session_rollback(sess)"),
-    Option("Exit this application", "pass")
-])
-
 add_menu = Menu('add', 'Please indicate what you want to add:', [
     Option("Department", "add_department(sess)"),
     Option("Course", "add_course(sess)"),
@@ -30,6 +19,7 @@ add_menu = Menu('add', 'Please indicate what you want to add:', [
     Option("Student", "add_student(sess)"),
     Option("Student to Major", "add_student_major(sess)"),
     Option("Major to Student", "add_major_student(sess)"),
+    Option("Back", "back"),
     Option("Exit", "pass")
 ])
 
@@ -40,6 +30,8 @@ delete_menu = Menu('delete', 'Please indicate what you want to delete from:', [
     Option("Student", "delete_student(sess)"),
     Option("Student to Major", "delete_student_major(sess)"),
     Option("Major to Student", "delete_major_student(sess)"),
+    Option("List Enrollments", "list_enrollments(sess)"),
+    Option("Back", "back"),
     Option("Exit", "pass")
 ])
 
@@ -50,6 +42,8 @@ list_menu = Menu('list', 'Please indicate what you want to list:', [
     Option("Student", "list_student(sess)"),
     Option("Student to Major", "list_student_major(sess)"),
     Option("Major to Student", "list_major_student(sess)"),
+    Option("Students to Sections (Enrollments)", "list_enrollments(sess)"),
+    Option("Back", "back"),
     Option("Exit", "pass")
 ])
 
@@ -61,8 +55,36 @@ debug_select = Menu('debug select', 'Please select a debug level:', [
 ])
 
 # A menu to prompt for whether to create new tables or reuse the old ones.
-introspection_select = Menu("introspection selectt", 'To introspect or not:', [
+introspection_select = Menu("introspection select", 'To introspect or not:', [
     Option('Start all over', START_OVER),
-#   Option("Reuse tables", INTROSPECT_TABLES),
     Option("Reuse without introspection", REUSE_NO_INTROSPECTION)
+])
+
+
+enrollment_menu = Menu("enrollment menu", "Please indicate what you want to do:", [
+    Option("Enroll Student in Section", "enroll_student(sess)"),
+    Option("Unenroll Student from a Section", "unenroll_student(sess)"),
+    Option("List Enrollments (Students to Sections)", "list_enrollments(sess)"),
+    Option("Delete a Section", "delete_section(sess)"),
+    Option("Delete a Student", "delete_student(sess)"),
+    Option("Commit", "sess.commit()"),
+    Option("Back", "back"),
+    Option("Exit this application", "pass")
+])
+
+section_select = Menu('section select', 'Please select how you want to select a section:', [
+    Option("Building and Room", "building/room"),
+    Option("Instructor", "instructor")
+])
+
+# The main options for operating on Departments and Courses.
+menu_main = Menu('main', 'Please select one of the following options:', [
+    Option("Add", add_menu),
+    Option("List", list_menu),
+    Option("Delete", delete_menu),
+    Option("Enrollment (simplified)", enrollment_menu),
+    Option("Boilerplate Data", "boilerplate(sess)"),
+    Option("Commit", "sess.commit()"),
+    Option("Rollback", "session_rollback(sess)"),
+    Option("Exit this application", "pass")
 ])
