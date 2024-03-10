@@ -67,7 +67,7 @@ if introspection_type == START_OVER or introspection_type == REUSE_NO_INTROSPECT
             self.instructor = instructor
 
         def add_student(self, student): 
-            if student in self.student:
+            if student in self.students:
                 print("Provided Student already exists in this Section.")
                 return
             section_student = Enrollment(self, student)
