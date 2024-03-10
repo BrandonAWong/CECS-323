@@ -1,6 +1,6 @@
 import logging
 from constants import *
-from menu_definitions import select_menu, debug_select, section_select
+from menu_definitions import select_menu, debug_select, section_select, department_select
 from IntrospectionFactory import IntrospectionFactory
 from db_connection import engine, Session
 from orm_base import metadata
@@ -186,13 +186,6 @@ def add_major_student(sess):
     sess.flush()
 
 
-def enroll_student(sess:Session) -> None:
-    if get_valid_input("Start search with Student or Section?\n  1. Student\n  2. Section\n", ("1", "2")) == "1":
-        add_student_section(sess)
-    else:
-        add_section_student(sess)
-
-
 def add_student_section(sess: Session) -> None:
     while True:
         student: Student = select_student(sess)
@@ -226,7 +219,7 @@ def add_section_student(sess: Session) -> None:
     sess.add(section)
     sess.flush()
 
-def find_department(sess: Session) -> Department:
+def select_department(sess: Session) -> Department:
         """
         Prompt the user for attribute values to select a single department.
         :param sess:    The connection to the database.
@@ -448,6 +441,15 @@ def delete_major_student(sess: Session):
     major.remove_student(student)
 
 
+def delete_student_section(sess: Session):
+    print("Prompting you for the student and the section they are no longer a part of.")
+    select_student(sess).remove_enrollment(select_section(sess))
+
+
+def delete_section_student(sess: Session):
+    print("Prompting you for the section and the student who is no longer a part of that section.")
+    select_section(sess).remove_enrollment(select_student(sess))
+
 def delete_student(sess: Session) -> None:
     print("deleting a student")
     student: Student = select_student(sess)
@@ -542,6 +544,14 @@ def list_major_student(sess: Session):
         print(f"Student name: {stu.lastName}, {stu.firstName}, Major: {stu.name}, Description: {stu.description}")
 
 
+def list_student_section(sess: Session) -> None:
+    [print(section) for section in select_student(sess).sections]
+
+
+def list_section_student(sess: Session) -> None:
+    [print(student) for student in select_section(sess).students]
+
+
 def move_course_to_new_department(sess: Session):
     """
     Take an existing course and move it to an existing department.  The course has to
@@ -621,13 +631,6 @@ def list_department_courses(sess):
         print(dept_course)
 
 
-def list_enrollments(sess) -> None:
-    if get_valid_input("Start search with Student or Section?\n  1. Student\n  2. Section\n", ("1", "2")) == "1":
-        [print(section) for section in select_student(sess).sections]
-    else:
-        [print(student) for student in select_section(sess).students]
-
-
 def boilerplate(sess):
     """
     Add boilerplate data initially to jump start the testing.  Remember that there is no
@@ -669,13 +672,6 @@ def session_rollback(sess):
         Option("No, I hit this option by mistake", "pass")
     ])
     exec(confirm_menu.menu_prompt())
-
-
-def unenroll_student(sess: Session) -> None:
-    if get_valid_input("Start search with Student or Section?\n  1. Student\n  2. Section\n", ("1", "2")) == "1":
-        select_student(sess).remove_enrollment(select_section(sess))
-    else:
-        select_section(sess).remove_enrollment(select_student(sess))
 
 
 def get_valid_input(prompt: str, valid_entries: tuple | list | set) -> str:
