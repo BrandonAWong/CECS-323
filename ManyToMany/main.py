@@ -516,7 +516,7 @@ def delete_student(sess: Session) -> None:
     print("deleting a student")
     student: Student = select_student(sess)
     if student.sections:
-        print(f"Student is in {len(student.sections)}.  Remove those first before removing student")
+        print(f"Student is in {len(student.sections)} section(s).  Remove those first before removing student")
     else:
         sess.delete(student)
 
@@ -525,7 +525,7 @@ def delete_section(sess: Session) -> None:
     print("deleting a section")
     section: Section = select_section(sess)
     if section.students:
-        print(f"Section contains {len(section.students)} students.  Delete them first then try again.")
+        print(f"Section contains {len(section.students)} student(s).  Delete them first then try again.")
     else:
         sess.delete(section)
 
