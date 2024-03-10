@@ -33,22 +33,20 @@ def add_department(session: Session) -> None:
         abbreviation: str = input("Department abbreviation--> ")
         chair_name: str = input("Department Chair--> ")
         building: str = input("Department Building--> ")
-        office: int = int(input("Department Office in Building --> "))
+        try:
+            office: int = int(input("Department Office in Building --> "))
+        except ValueError:
+            print("Input must be an integer.  Try again")
+            continue
         description: str = input("Department description --> ")
+        department: Department = Department(name, abbreviation, chair_name, building, office, description)  
+        if check_unique(session, department):
+            print("The following inquness constraints were violated:")
+            pprint(check_unique(session, department))
+            print("Please try again.")
+        else:
+            break
 
-        if session.query(Department).filter(Department.abbreviation == abbreviation).count():
-            print("We already have an abbreviation of that department.  Try again.")
-            continue
-        elif session.query(Department).filter(Department.chairName == chair_name).count():
-            print("We already have that professor as chair of another department.  Try again.")
-            continue
-        elif session.query(Department).filter(Department.building == building, Department.office == office).count(): 
-            print("That building and room already is taken by another department.  Try again.")
-            continue
-        elif session.query(Department).filter(Department.description == description).count():
-            print("Another department already has that description.  Try again.")
-            continue
-        break
 
     session.add(Department(name, abbreviation, chair_name, building, office, description))
 
@@ -69,19 +67,23 @@ def add_course(session: Session):
     print("Which department offers this course?")
     department: Department = select_department(sess)
     description: str = input('Please enter the course description-->')
-    units: int = int(input('How many units for this course-->'))
-    violation = True  # Flag that we still have to prompt for fresh values
-    while violation:
-        name = input("Course full name--> ")
-        number = int(input("Course number--> "))
-        course = Course(department, number, name, description, units)
-        violated_constraints = check_unique(Session, course)
-        if len(violated_constraints) > 0:
-            print('The following uniqueness constraints were violated:')
-            pprint(violated_constraints)
-            print('Please try again.')
-        else:
-            violation = False
+    try:
+        units: int = int(input('How many units for this course-->'))
+        violation = True  # Flag that we still have to prompt for fresh values
+        while violation:
+            name = input("Course full name--> ")
+            number = int(input("Course number--> "))
+            course = Course(department, number, name, description, units)
+            violated_constraints = check_unique(session, course)
+            if len(violated_constraints) > 0:
+                print('The following uniqueness constraints were violated:')
+                pprint(violated_constraints)
+                print('Please try again.')
+            else:
+                violation = False
+    except ValueError:
+        print("Invalid input.  Try again")
+
     session.add(course)
 
 
@@ -99,36 +101,24 @@ def add_section(sess: Session) -> None:
             year: int = int(input("Section year--> "))
             semester: str = get_valid_input("Section semester--> ",
                                             ("Fall", "Spring", "Winter", "Summer I", "Summer II"))
-
-            if (sess.query(Section).filter(Section.course == course, Section.sectionNumber == number,
-                                           Section.sectionYear == year, Section.semester == semester).count()):
-                print("We already have a section with that number.  Try again")
-                continue
-
             schedule: str = get_valid_input("Section schedule--> ",
-                                            ("MW", "TuTh", "MWF", "F", "S")) 
+                                            ("MW", "TuTh", "MWF", "F", "S"))
             start_time: time = time(*[int(e) for e in input("Section time[HH:MM]--> ").split(":")]) 
             building: str = get_valid_input("Section building--> ", 
                                             ("VEC", "ECS", "EN2", "EN3", "EN4", "ET", "SSPA"))
             room: int = int(input("Section room--> "))
-
+            instructor: str = input("Section instructor--> ")
         except ValueError:
             print("Invalid input.  Try again.")
             continue
-
-        if (sess.query(Section).filter(Section.sectionYear == year, Section.semester == semester,
-                                       Section.schedule == schedule, Section.startTime == start_time, 
-                                       Section.building == building, Section.room == room).count()):
-            print("We already have a section in this room.  Try again.")
-            continue
-
-        instructor: str = input("Section instructor--> ")
-        if (sess.query(Section).filter(Section.sectionYear == year, Section.semester == semester,
-                                       Section.schedule == schedule, Section.startTime == start_time, 
-                                       Section.instructor == instructor).count()): 
-            print("We already have that instructor in a section at the same time.  Try again.")
-            continue
-        break
+        
+        section: Section = Section(course, number, semester, year, building, room, schedule, start_time, instructor)
+        if check_unique(sess, section):
+            print('The following uniqueness constraints were violated:')
+            pprint(check_unique(sess, section))
+            print('Please try again.') 
+        else:
+            break
     
     sess.add(Section(course, number, semester, year, building, room, schedule, start_time, instructor))
 
@@ -238,14 +228,13 @@ def add_student_section(sess: Session) -> None:
     while True:
         student: Student = select_student(sess)
         section: Section = select_section(sess)
-        if not sess.query(Enrollment).filter(Enrollment.studentId == student.studentID, 
-                Enrollment.departmentAbbreviation == section.departmentAbbreviation,
-                Enrollment.courseNumber == section.courseNumber,
-                Enrollment.sectionNumber == section.sectionNumber,
-                Enrollment.semester == section.semester,
-                Enrollment.sectionYear == section.sectionYear).count():
+        enrollment: Enrollment = Enrollment(section, student)
+        if check_unique(sess, enrollment):
+            print('The following uniqueness constraints were violated:')
+            pprint(check_unique(sess, enrollment))
+            print('Please try again.')
+        else:
             break
-        print("That student is already in the section")
     student.add_section(section)
     sess.add(student)
     sess.flush()
@@ -255,14 +244,13 @@ def add_section_student(sess: Session) -> None:
     while True:
         section: Section = select_section(sess)
         student: Student = select_student(sess)
-        if not sess.query(Enrollment).filter(Enrollment.studentId == student.studentID, 
-                Enrollment.departmentAbbreviation == section.departmentAbbreviation,
-                Enrollment.courseNumber == section.courseNumber,
-                Enrollment.sectionNumber == section.sectionNumber,
-                Enrollment.semester == section.semester,
-                Enrollment.sectionYear == section.sectionYear).count():
+        enrollment: Enrollment = Enrollment(section, student)
+        if check_unique(sess, enrollment):
+            print('The following uniqueness constraints were violated:')
+            pprint(check_unique(sess, enrollment))
+            print('Please try again.')
+        else:
             break
-        print("That section already hast this student")
     section.add_student(student)
     sess.add(section)
     sess.flush()
