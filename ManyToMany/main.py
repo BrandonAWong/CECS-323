@@ -186,12 +186,19 @@ def add_major_student(sess):
     sess.flush()
 
 
+def enroll_student(sess:Session) -> None:
+    if get_valid_input("Start search with Student or Section?\n  1. Student\n  2. Section\n", ("1", "2")) == "1":
+        add_student_section(sess)
+    else:
+        add_section_student(sess)
+
+
 def add_student_section(sess: Session) -> None:
     while True:
         student: Student = select_student(sess)
         section: Section = select_section(sess)
         if not sess.query(Enrollment).filter(Enrollment.studentId == student.studentID, 
-                Enrollment.departmentAbbreviatoin == section.departmentAbbreviation,
+                Enrollment.departmentAbbreviation == section.departmentAbbreviation,
                 Enrollment.courseNumber == section.courseNumber,
                 Enrollment.sectionNumber == section.sectionNumber,
                 Enrollment.semester == section.semester,
@@ -341,6 +348,10 @@ def select_section(sess) -> Section:
                 section: Section = sess.query(Section).filter(Section.sectionYear == year, Section.semester == semester,
                                        Section.schedule == schedule, Section.startTime == start_time, 
                                        Section.instructor == instructor).first() 
+        if section:
+            print(section)
+            return section
+        print("Section not found.  Try again.")
 
 def select_student(sess) -> Student:
     """
@@ -626,6 +637,8 @@ def boilerplate(sess):
     :return:        None
     """
     department: Department = Department("Computer Science", "CECS", "Joe biden", "ECS", 1, "hello!")
+    course = Course(department, 323, "Data", "yolo", 3)
+    section = Section(course, 3, "Spring", 2024, "ECS", 2, "MW", time(12,30), "donald")
     major1: Major = Major(department, 'Computer Science', 'Fun with blinking lights')
     major2: Major = Major(department, 'Computer Engineering', 'Much closer to the silicon')
     student1: Student = Student('Brown', 'David', 'david.brown@gmail.com')
@@ -640,6 +653,8 @@ def boilerplate(sess):
     sess.add(student1)
     sess.add(student2)
     sess.add(student3)
+    sess.add(course)
+    sess.add(section)
     sess.flush()                                # Force SQLAlchemy to update the database, although not commit
 
 
