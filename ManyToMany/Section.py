@@ -68,14 +68,17 @@ if introspection_type == START_OVER or introspection_type == REUSE_NO_INTROSPECT
 
         def add_student(self, student): 
             if student in self.student:
+                print("Provided Student already exists in this Section.")
                 return
             section_student = Enrollment(self, student)
             student.sections.append(section_student)
             self.students.append(section_student)        
 
         def remove_enrollment(self, student):
-            if student in self.sections:
-                self.sections.remove(student)
+            if student not in self.sections:
+                print("Provided Student does not exist in this Section.")
+                return
+            self.sections.remove(student)
 
         def __str__(self):
             return (f"Course number: {self.courseNumber} Course name: {self.course.name}\n"
