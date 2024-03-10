@@ -8,6 +8,7 @@ introspection_type = IntrospectionFactory().introspection_type
 
 if introspection_type == START_OVER or introspection_type == REUSE_NO_INTROSPECTION:
     class Enrollment(Base):
+        """An account of participation of a student to a section. Said instances are issued by the university and pertain to a specific course."""
         __tablename__ = "enrollments"
         section: Mapped["Section"] = relationship(back_populates="students")
         departmentAbbreviation: Mapped[str] = mapped_column('department_abbreviation',
