@@ -20,7 +20,7 @@ if introspection_type == START_OVER or introspection_type == REUSE_NO_INTROSPECT
                                                   nullable=False, primary_key=True)
         sectionYear: Mapped[int] = mapped_column('section_year', Integer, nullable=False,
                                                   primary_key=True) 
-        student: Mapped["Student"] = relationship(back_populates="majors")
+        student: Mapped["Student"] = relationship(back_populates="sections")
         studentId: Mapped[int] = mapped_column('student_id', primary_key=True)
 
         __table_args__ = (ForeignKeyConstraint([departmentAbbreviation, courseNumber, sectionNumber],
