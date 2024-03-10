@@ -251,7 +251,7 @@ def add_section_student(sess: Session) -> None:
         section: Section = select_section(sess)
         student: Student = select_student(sess)
         if not sess.query(Enrollment).filter(Enrollment.studentId == student.studentID, 
-                Enrollment.departmentAbbreviatoin == section.departmentAbbreviation,
+                Enrollment.departmentAbbreviation == section.departmentAbbreviation,
                 Enrollment.courseNumber == section.courseNumber,
                 Enrollment.sectionNumber == section.sectionNumber,
                 Enrollment.semester == section.semester,
