@@ -85,6 +85,49 @@ def add_course(session: Session):
     session.add(course)
 
 
+def add_section(sess: Session) -> None:
+    """
+    Prompt the user for the information for a new section and validate
+    the input to make sure that we do not create any duplicates.
+    :param session: The connection to the database.
+    :return:        None
+    """
+    course: Course = select_course(sess)
+    while True:
+        number: int = int(input("Section number--> "))
+        year: int = int(input("Section year--> "))
+        semester: str = get_valid_input("Section semester--> ",
+                                        ("Fall", "Spring", "Winter", "Summer I", "Summer II"))
+
+        if (sess.query(Section).filter(Section.course == course, Section.sectionNumber == number,
+                                       Section.sectionYear == year, Section.semester == semester).count()):
+            print("We already have a section with that number.  Try again")
+            continue
+
+        schedule: str = get_valid_input("Section schedule--> ",
+                                        ("MW", "TuTh", "MWF", "F", "S")) 
+        start_time: time = time(*[int(e) for e in input("Section time[HH:MM]--> ").split(":")]) 
+        building: str = get_valid_input("Section building--> ", 
+                                        ("VEC", "ECS", "EN2", "EN3", "EN4", "ET", "SSPA"))
+        room: int = int(input("Section room--> "))
+
+        if (sess.query(Section).filter(Section.sectionYear == year, Section.semester == semester,
+                                       Section.schedule == schedule, Section.startTime == start_time, 
+                                       Section.building == building, Section.room == room).count()):
+            print("We already have a section in this room.  Try again.")
+            continue
+
+        instructor: str = input("Section instructor--> ")
+        if (sess.query(Section).filter(Section.sectionYear == year, Section.semester == semester,
+                                       Section.schedule == schedule, Section.startTime == start_time, 
+                                       Section.instructor == instructor).count()): 
+            print("We already have that instructor in a section at the same time.  Try again.")
+            continue
+        break
+    
+    sess.add(Section(course, number, semester, year, building, room, schedule, start_time, instructor))
+
+
 def add_major(session: Session):
     """
     Prompt the user for the information for a new major and validate
