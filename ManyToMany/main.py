@@ -585,11 +585,11 @@ def list_major_student(sess: Session):
 
 
 def list_student_section(sess: Session) -> None:
-    [print(section.section) for section in select_student(sess).sections]
+    [print(enrollment.section) for enrollment in select_student(sess).sections]
 
 
 def list_section_student(sess: Session) -> None:
-    [print(student.student) for student in select_section(sess).students]
+    [print(enrollment.student) for enrollment in select_section(sess).students]
 
 
 def move_course_to_new_department(sess: Session):
@@ -680,9 +680,11 @@ def boilerplate(sess):
     :return:        None
     """
     department: Department = Department("Computer Science", "CECS", "Joe biden", "ECS", 1, "hello!")
-    course: Course = Course(department, 323, "Data", "yolo", 3)
-    section1: Section = Section(course, 3, "Spring", 2024, "ECS", 2, "MW", time(12, 30), "Donald")
-    section2: Section = Section(course, 1, "Spring", 2024, "ECS", 2, "F", time(12, 30), "Donald")
+    course1: Course = Course(department, 323, "Data", "yolo", 3)
+    course2: Course = Course(department, 100, "Code", "dummy", 3)
+    section1: Section = Section(course1, 3, "Spring", 2024, "ECS", 2, "MW", time(12, 30), "Donald")
+    section2: Section = Section(course1, 1, "Spring", 2024, "ECS", 2, "F", time(12, 30), "Donald")
+    section3: Section = Section(course2, 1, "Spring", 2024, "ECS", 3, "F", time(12, 30), "Jared")
     major1: Major = Major(department, 'Computer Science', 'Fun with blinking lights')
     major2: Major = Major(department, 'Computer Engineering', 'Much closer to the silicon')
     student1: Student = Student('Brown', 'David', 'david.brown@gmail.com')
@@ -698,10 +700,12 @@ def boilerplate(sess):
     sess.add(student1)
     sess.add(student2)
     sess.add(student3)
-    sess.add(course)
+    sess.add(student4)
+    sess.add(course1)
+    sess.add(course2)
     sess.add(section1)
     sess.add(section2)
-    sess.add(student4)
+    sess.add(section3)
     sess.flush()                                # Force SQLAlchemy to update the database, although not commit
 
 
