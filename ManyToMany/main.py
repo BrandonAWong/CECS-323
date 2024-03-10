@@ -678,8 +678,9 @@ if __name__ == '__main__':
         action: str = ''
         while action != menu.last_action():
             action = menu.menu_prompt()
-            if action != "back":
+            if action == "back":
                 menu = menu.menu_prompt()
+                continue
             print('next action: ', action)
             exec(action)
         sess.commit()
