@@ -448,23 +448,6 @@ def select_major(sess) -> Major:
     return major
 
 
-def delete_student(session: Session):
-    """
-    Prompt the user for a student to delete and delete them.
-    :param session:     The current connection to the database.
-    :return:            None
-    """
-    student: Student = select_student(session)
-    """This is a bit ghetto.  The relationship from Student to StudentMajor has 
-    cascade delete, so this delete will work even if a student has declared one
-    or more majors.  I could write a method on Student that would return some
-    indication of whether it has any children, and use that to let the user know
-    that they cannot delete this particular student.  But I'm too lazy at this
-    point.
-    """
-    session.delete(student)
-
-
 def delete_department(session: Session):
     """
     Prompt the user for a department by the abbreviation and delete it.
@@ -512,11 +495,14 @@ def delete_section_student(sess: Session):
     print("Prompting you for the section and the student who is no longer a part of that section.")
     select_section(sess).remove_enrollment(select_student(sess))
 
+
 def delete_student(sess: Session) -> None:
     print("deleting a student")
     student: Student = select_student(sess)
     if student.sections:
         print(f"Student is in {len(student.sections)} section(s).  Remove those first before removing student")
+    elif student.majors:
+        print(f"Student has {len(student.majors)} major(s).  Remove those first before removing student")
     else:
         sess.delete(student)
 
