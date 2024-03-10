@@ -94,22 +94,27 @@ def add_section(sess: Session) -> None:
     """
     course: Course = select_course(sess)
     while True:
-        number: int = int(input("Section number--> "))
-        year: int = int(input("Section year--> "))
-        semester: str = get_valid_input("Section semester--> ",
-                                        ("Fall", "Spring", "Winter", "Summer I", "Summer II"))
+        try:
+            number: int = int(input("Section number--> "))
+            year: int = int(input("Section year--> "))
+            semester: str = get_valid_input("Section semester--> ",
+                                            ("Fall", "Spring", "Winter", "Summer I", "Summer II"))
 
-        if (sess.query(Section).filter(Section.course == course, Section.sectionNumber == number,
-                                       Section.sectionYear == year, Section.semester == semester).count()):
-            print("We already have a section with that number.  Try again")
+            if (sess.query(Section).filter(Section.course == course, Section.sectionNumber == number,
+                                           Section.sectionYear == year, Section.semester == semester).count()):
+                print("We already have a section with that number.  Try again")
+                continue
+
+            schedule: str = get_valid_input("Section schedule--> ",
+                                            ("MW", "TuTh", "MWF", "F", "S")) 
+            start_time: time = time(*[int(e) for e in input("Section time[HH:MM]--> ").split(":")]) 
+            building: str = get_valid_input("Section building--> ", 
+                                            ("VEC", "ECS", "EN2", "EN3", "EN4", "ET", "SSPA"))
+            room: int = int(input("Section room--> "))
+
+        except ValueError:
+            print("Invalid input.  Try again.")
             continue
-
-        schedule: str = get_valid_input("Section schedule--> ",
-                                        ("MW", "TuTh", "MWF", "F", "S")) 
-        start_time: time = time(*[int(e) for e in input("Section time[HH:MM]--> ").split(":")]) 
-        building: str = get_valid_input("Section building--> ", 
-                                        ("VEC", "ECS", "EN2", "EN3", "EN4", "ET", "SSPA"))
-        room: int = int(input("Section room--> "))
 
         if (sess.query(Section).filter(Section.sectionYear == year, Section.semester == semester,
                                        Section.schedule == schedule, Section.startTime == start_time, 
@@ -396,6 +401,7 @@ def select_section(sess) -> Section:
 
         except ValueError:
             print("Invalid Input.  Try again.")
+            continue
 
         if section:
             print(section)
@@ -701,7 +707,8 @@ def boilerplate(sess):
     """
     department: Department = Department("Computer Science", "CECS", "Joe biden", "ECS", 1, "hello!")
     course = Course(department, 323, "Data", "yolo", 3)
-    section = Section(course, 3, "Spring", 2024, "ECS", 2, "MW", time(12,30), "donald")
+    section1 = Section(course, 3, "Spring", 2024, "ECS", 2, "MW", time(12, 30), "Donald")
+    section2 = Section(course, 1, "Spring", 2024, "ECS", 2, "F", time(12, 30), "Donald")
     major1: Major = Major(department, 'Computer Science', 'Fun with blinking lights')
     major2: Major = Major(department, 'Computer Engineering', 'Much closer to the silicon')
     student1: Student = Student('Brown', 'David', 'david.brown@gmail.com')
@@ -717,7 +724,8 @@ def boilerplate(sess):
     sess.add(student2)
     sess.add(student3)
     sess.add(course)
-    sess.add(section)
+    sess.add(section1)
+    sess.add(section2)
     sess.flush()                                # Force SQLAlchemy to update the database, although not commit
 
 
