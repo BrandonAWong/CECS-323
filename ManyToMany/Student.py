@@ -76,7 +76,7 @@ if introspection_type == START_OVER or introspection_type == REUSE_NO_INTROSPECT
                     return
 
         def add_section(self, section: Section):
-            if section in self.sections:
+            if section in [section.section for section in self.sections]:
                 print("Provided Section alreayd containts the Student.")
                 return
             student_section = Enrollment(section, self)
@@ -84,10 +84,10 @@ if introspection_type == START_OVER or introspection_type == REUSE_NO_INTROSPECT
             self.sections.append(student_section)        
 
         def remove_enrollment(self, section):
-            if section not in self.sections:
+            if section not in [section.section for section in self.sections]:
                 print("Provided Section does not contain the Student.") 
                 return
-            self.sections.remove(section)
+            self.sections.pop([section.section for section in self.sections].index(section))
 
         def __str__(self):
             return f"Student ID: {self.studentID} name: {self.lastName}, {self.firstName} e-mail: {self.email}"
