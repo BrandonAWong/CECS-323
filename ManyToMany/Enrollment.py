@@ -21,11 +21,12 @@ if introspection_type == START_OVER or introspection_type == REUSE_NO_INTROSPECT
         sectionYear: Mapped[int] = mapped_column('section_year', Integer, nullable=False,
                                                   primary_key=True) 
         student: Mapped["Student"] = relationship(back_populates="majors")
-        studentId: Mapped[int] = mapped_column('student_id', ForeignKey("students.student_id"), primary_key=True)
+        studentId: Mapped[int] = mapped_column('student_id', primary_key=True)
 
         __table_args__ = (ForeignKeyConstraint([departmentAbbreviation, courseNumber, sectionNumber],
                                                ["Section.departmentAbbreviation", "Section.courseNumber", "Section.sectionNumber"],
                                               name="enrollments_sections_fk_01"),
+                          ForeignKeyConstraint([studentId], ["Student.studentID"], name="enrollments_students_fk_01"),
                           UniqueConstraint("department_abbreviation", "course_number", "section_year", "semester", "student_id", name="enrollments_uk_01"))
 
         def __init__(self, section, student):
