@@ -585,11 +585,11 @@ def list_major_student(sess: Session):
 
 
 def list_student_section(sess: Session) -> None:
-    [print(section) for section in select_student(sess).sections]
+    [print(section.section) for section in select_student(sess).sections]
 
 
 def list_section_student(sess: Session) -> None:
-    [print(student) for student in select_section(sess).students]
+    [print(student.student) for student in select_section(sess).students]
 
 
 def move_course_to_new_department(sess: Session):
