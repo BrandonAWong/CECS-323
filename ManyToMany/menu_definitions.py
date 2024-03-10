@@ -79,12 +79,17 @@ section_select = Menu('section select', 'Please select how you want to select a 
 
 # The main options for operating on Departments and Courses.
 menu_main = Menu('main', 'Please select one of the following options:', [
+    Option("Boilerplate Data", "boilerplate(sess)"),
+    Option("Commit", "sess.commit()"),
+    Option("Rollback", "session_rollback(sess)"),
+    Option("Back", "back"),
+    Option("Exit this application", "pass")
+])
+
+select_menu = Menu('select', 'Please select what you wana do:', [
     Option("Add", add_menu),
     Option("List", list_menu),
     Option("Delete", delete_menu),
     Option("Enrollment (simplified)", enrollment_menu),
-    Option("Boilerplate Data", "boilerplate(sess)"),
-    Option("Commit", "sess.commit()"),
-    Option("Rollback", "session_rollback(sess)"),
-    Option("Exit this application", "pass")
+    Option("Other", menu_main)
 ])

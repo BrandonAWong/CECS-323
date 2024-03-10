@@ -1,6 +1,6 @@
 import logging
 from constants import *
-from menu_definitions import menu_main, debug_select, section_select
+from menu_definitions import select_menu, debug_select, section_select
 from IntrospectionFactory import IntrospectionFactory
 from db_connection import engine, Session
 from orm_base import metadata
@@ -673,13 +673,13 @@ if __name__ == '__main__':
     elif introspection_mode == REUSE_NO_INTROSPECTION:
         print("Assuming tables match class definitions")
 
-    menu = menu_main.menu_prompt()
+    menu: Menu = select_menu.menu_prompt()
     with Session() as sess:
         action: str = ''
-        while action != menu_main.last_action():
-            action = menu_main.menu_prompt()
+        while action != menu.last_action():
+            action = menu.menu_prompt()
             if action != "back":
-                menu = menu_main.menu_prompt()
+                menu = menu.menu_prompt()
             print('next action: ', action)
             exec(action)
         sess.commit()
