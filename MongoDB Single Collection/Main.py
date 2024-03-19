@@ -276,7 +276,7 @@ def delete_department(db):
     :return:    None
     """
     department = select_department(db)
-    students = db["departments"]
+    departments = db["departments"]
     deleted = departments.delete_one({"_id": department["_id"]})
     print(f"We just deleted: {deleted.deleted_count} departments.")
 
