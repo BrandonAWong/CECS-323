@@ -198,43 +198,35 @@ def add_department(db):
     """
 
     collection = db["departments"]
-    unique_name: bool = False
-    unique_abbrv: bool = False
-    unique_chair: bool = False
-    unique_room: bool = False
-    unique_desc: bool = False
 
-    name = str = ''
-    abbrv: str = ''
-    chair: str = ''
-    building: str = ''
-    office: int = 0
-    desc: str = ''
-
-    while not unique_name or not unique_abbrv or not unique_chair or not unique_room or not unique_desc:
+    while True:
         name = input("Department name-> ")
+        if collection.count_documents({"name": name}):
+            print("We already have a department by that name.  Try again")
+            continue
         abbrv = input("Department abbreviation--> ")
-        chair = input("Department chair name--> ")
-        building = input("Department building--> ")
-        office = int(input("Department office number--> "))
-        desc = input("Department description--> ")
-
-        unique_name = collection.count_documents({"name": name}) == 0
-        unique_abbrv = collection.count_documents({"abbreviation": abbrv}) == 0
-        unique_chair = collection.count_documents({"chair_name": chair}) == 0
-        unique_room = collection.count_documents({"building": building, "office": office}) == 0
-        unique_desc = collection.count_documents({"description": desc}) == 0
-
-        if not unique_name:
-            print("We already have a department by that name.  Try again.")
-        if not unique_abbrv:
+        if collection.count_documents({"abbreviation": abbrv}):
             print("We already have a department with that abbreviation.  Try again.")
-        if not unique_chair:
+            continue
+        chair = input("Department chair name--> ")
+        if collection.count_documents({"chair_name": chair}): 
             print("We already have a department with that chair.  Try again.")
-        if not unique_room:
+            continue
+        building = input("Department building--> ")
+        try:
+            office = int(input("Department office number--> "))
+        except ValueError:
+            print("Wrong value type entered.  Try again.")
+            continue
+        if collection.count_documents({"building": building, "office": office}):
             print("We already have a department in that room.  Try again.")
-        if not unique_desc:
+            continue
+        desc = input("Department description--> ")
+        if collection.count_documents({"description": desc}):
             print("We already have a department with that description.  Try again.")
+            continue
+        break
+
 
     results = collection.insert_one(
         {
@@ -256,17 +248,13 @@ def select_department(db):
     """
     # Create a connection to the students collection from this database
     collection = db["departments"]
-    found: bool = False
-    name: str = ''
 
-    while not found:
+    while True:
         name = input("Department Name--> ")
-        name_count: int = collection.count_documents({"name": name})
-        found = name_count == 1
-        if not found:
+        if not collection.count_documents({"name": name}):
             print("No Department found by that name.  Try again.")
-    found_student = collection.find_one({"name": name})
-    return found_student
+        break
+    return collection.find_one({"name": name})
 
 
 def delete_department(db):
@@ -294,16 +282,15 @@ def list_department(db):
 
 
 if __name__ == '__main__':
-    #password: str = getpass.getpass('Mongo DB password -->')
-    #username: str = input('Database username [CECS-323-Spring-2023-user] -->') or \
-    #                "CECS-323-Spring-2023-user"
-    #project: str = input('Mongo project name [cecs-323-spring-2023] -->') or \
-    #               "CECS-323-Spring-2023"
-    #hash_name: str = input('7-character database hash [puxnikb] -->') or "puxnikb"
-    #cluster = f"mongodb+srv://{username}:{password}@{project}.{hash_name}.mongodb.net/?retryWrites=true&w=majority"
-    #print(f"Cluster: mongodb+srv://{username}:********@{project}.{hash_name}.mongodb.net/?retryWrites=true&w=majority")
+    password: str = getpass.getpass('Mongo DB password -->')
+    username: str = input('Database username [CECS-323-Spring-2023-user] -->') or \
+                    "CECS-323-Spring-2023-user"
+    project: str = input('Mongo project name [cecs-323-spring-2023] -->') or \
+                   "CECS-323-Spring-2023"
+    hash_name: str = input('7-character database hash [puxnikb] -->') or "puxnikb"
+    cluster = f"mongodb+srv://{username}:{password}@{project}.{hash_name}.mongodb.net/?retryWrites=true&w=majority"
+    print(f"Cluster: mongodb+srv://{username}:********@{project}.{hash_name}.mongodb.net/?retryWrites=true&w=majority")
     
-    cluster = "mongodb+srv://Igweiss8:Garrett88!@cecs323.f2ryjuk.mongodb.net/?retryWrites=true&w=majority"
     client = MongoClient(cluster)
     # As a test that the connection worked, print out the database names.
     print(client.list_database_names())
