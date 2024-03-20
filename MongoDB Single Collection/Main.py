@@ -253,6 +253,7 @@ def select_department(db):
         name = input("Department Name--> ")
         if not collection.count_documents({"name": name}):
             print("No Department found by that name.  Try again.")
+            continue
         break
     return collection.find_one({"name": name})
 
