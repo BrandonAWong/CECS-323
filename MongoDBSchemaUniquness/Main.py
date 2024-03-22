@@ -5,7 +5,9 @@ import getpass
 from pymongo.errors import WriteError, DuplicateKeyError
 from Menu import Menu
 from menu_definitions import menu_main 
-from ExceptionHandler import print_exception
+from ExceptionPrint import print_exception
+from tests import *
+
 
 def setup_students_collection(students):
     students_indexes = students.index_information()

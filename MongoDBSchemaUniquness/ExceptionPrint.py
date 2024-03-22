@@ -54,6 +54,8 @@ def print_exception(thrown_exception: Exception):
                             else:
                                 output.write(
                                     f"Error: '{reason['reason']}' for field '{field}'. Please correct the input.\n")
+                else:
+                    output.write("You may be missing a field. Please correct the input\n") 
         results = output.getvalue().rstrip()
     print(results) 
 

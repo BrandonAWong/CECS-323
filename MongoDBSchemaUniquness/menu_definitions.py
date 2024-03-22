@@ -53,11 +53,25 @@ validator_menu = Menu('validator', 'Please indicate what you validators you woul
     Option("Exit", "pass")
 ])
 
+testing_menu = Menu('test', 'Please indicate what test you would like to run', [
+    Option("Add Base Department for Testing Uniquness", "add_test(db)"),
+    Option("Name Constraints", "test_name(db)"),
+    Option("Abbreviation Constraints", "test_abbreviation(db)"),
+    Option("Chair Constraints", "test_chair(db)"),
+    Option("Building Constraints", "test_building(db)"),
+    Option("Building/Room Constraint", "test_room(db)"),
+    Option("Description Constraints", "test_description(db)"),
+    Option("Missing Field", "test_missing(db)"),
+    Option("Back", "back"),
+    Option("Exit", "pass")
+])
+
 menu_main = Menu('main', 'Please select one of the following options:', [
 Option("Add", add_menu),
 Option("List", list_menu),
 Option("Delete", delete_menu),
 Option("Add Validators & Constraints", validator_menu),
+Option("Testing Constraints", testing_menu),
 #    Option("Boilerplate Data", "boilerplate(db)"),
 Option("Exit this application", "pass")
 ])
