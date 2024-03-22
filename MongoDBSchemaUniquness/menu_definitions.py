@@ -13,13 +13,7 @@ variables or not in Python.
 """
 
 # The main options for operating on Departments and Courses.
-menu_main = Menu('main', 'Please select one of the following options:', [
-    Option("Add", "add(db)"),
-    Option("List", "list_objects(db)"),
-    Option("Delete", "delete(db)"),
-    #    Option("Boilerplate Data", "boilerplate(db)"),
-    Option("Exit this application", "pass")
-])
+
 
 add_menu = Menu('add', 'Please indicate what you want to add:', [
     Option("Department", "add_department(db)"),
@@ -28,16 +22,7 @@ add_menu = Menu('add', 'Please indicate what you want to add:', [
     Option("Student", "add_student(db)"),
     #    Option("Student to Major", "add_student_major(db)"),
     #    Option("Major to Student", "add_major_student(db)"),
-    Option("Exit", "pass")
-])
-
-delete_menu = Menu('delete', 'Please indicate what you want to delete from:', [
-    Option("Department", "delete_department(db)"),
-    #    Option("Course", "delete_course(db)"),
-    #    Option("Major", "delete_major(db)"),
-    Option("Student", "delete_student(db)"),
-    #    Option("Student to Major", "delete_student_major(db)"),
-    #    Option("Major to Student", "delete_major_student(db)"),
+    Option("Back", "back"),
     Option("Exit", "pass")
 ])
 
@@ -48,5 +33,31 @@ list_menu = Menu('list', 'Please indicate what you want to list:', [
     Option("Student", "list_student(db)"),
     #    Option("Student to Major", "list_student_major(db)"),
     #    Option("Major to Student", "list_major_student(db)"),
+    Option("Back", "back"),
     Option("Exit", "pass")
+])
+delete_menu = Menu('delete', 'Please indicate what you want to delete from:', [
+    Option("Department", "delete_department(db)"),
+    #    Option("Course", "delete_course(db)"),
+    #    Option("Major", "delete_major(db)"),
+    Option("Student", "delete_student(db)"),
+    #    Option("Student to Major", "delete_student_major(db)"),
+    #    Option("Major to Student", "delete_major_student(db)"),
+    Option("Back", "back"),
+    Option("Exit", "pass")
+])
+
+validator_menu = Menu('validator', 'Please indicate what you validators you would like to add:', [
+    Option("Department Validator", "add_departments_validator(db)"),
+    Option("Back", "back"),
+    Option("Exit", "pass")
+])
+
+menu_main = Menu('main', 'Please select one of the following options:', [
+Option("Add", add_menu),
+Option("List", list_menu),
+Option("Delete", delete_menu),
+Option("Add Validators & Constraints", validator_menu),
+#    Option("Boilerplate Data", "boilerplate(db)"),
+Option("Exit this application", "pass")
 ])

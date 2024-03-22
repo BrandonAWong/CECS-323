@@ -2,10 +2,10 @@ import pymongo
 from pymongo import MongoClient
 from pprint import pprint
 import getpass
-from menu_definitions import menu_main
-from menu_definitions import add_menu
-from menu_definitions import delete_menu
-from menu_definitions import list_menu
+from pymongo.errors import WriteError, DuplicateKeyError
+from Menu import Menu
+from menu_definitions import menu_main 
+from ExceptionHandler import print_exception
 
 def setup_students_collection(students):
     students_indexes = students.index_information()
@@ -52,40 +52,52 @@ def setup_departments_collection(departments):
             departments.create_index([('description', pymongo.ASCENDING)], unique=True, name='departments_description')
 
 
-def add(db):
-    """
-    Present the add menu and execute the user's selection.
-    :param db:  The connection to the current database.
-    :return:    None
-    """
-    add_action: str = ''
-    while add_action != add_menu.last_action():
-        add_action = add_menu.menu_prompt()
-        exec(add_action)
+def add_departments_validator(db):
+    departments_validator = {
+            'validator': {
+                '$jsonSchema': {
+                    'bsonType': "object",
+                    'description': "A division of a university where faculty are devoted to a particular academic discipline",
+                    'required': ["name", "abbreviation", "chair_name", "building", "office", "description"],
+                    'additionalProperties': False,
+                    'properties': {
+                        '_id': {},
+                        'name': {
+                            'bsonType': "string",
+                            'minLength': 10,
+                            'maxLength': 50,
+                            'description': "Name of the department"
+                        },
+                        'abbreviation': {
+                            'bsonType': "string",
+                            'maxLength': 6,
+                            'description': "Shorthand abbreviation of department name"
+                        },
+                        'chair_name': {
+                            'bsonType': "string",
+                            'maxLength': 80,
+                            'description': "Name of the head of the department"
+                        },
+                        'building': {
+                            'enum': ["ANAC", "CDC", "DC", "ECS", "EN2", "EN3", "EN4", "ET", "HSCI", "NUR", "VEC"],
+                            'description': "The building that contains the department chair's office"
+                        },
+                        'office': {
+                            'bsonType': "number",
+                            'description': "Room number of the department chair's office"
+                        },
+                        'description': {
+                            'bsonType': "string",
+                            'minLength': 10,
+                            'maxLength': 80,
+                            'description': "Description of the department"
+                        }
+                    }
+                }
+            }
+        }
 
-
-def delete(db):
-    """
-    Present the delete menu and execute the user's selection.
-    :param db:  The connection to the current database.
-    :return:    None
-    """
-    delete_action: str = ''
-    while delete_action != delete_menu.last_action():
-        delete_action = delete_menu.menu_prompt()
-        exec(delete_action)
-
-
-def list_objects(db):
-    """
-    Present the list menu and execute the user's selection.
-    :param db:  The connection to the current database.
-    :return:    None
-    """
-    list_action: str = ''
-    while list_action != list_menu.last_action():
-        list_action = list_menu.menu_prompt()
-        exec(list_action)
+    db.command("collMod", "departments", **departments_validator)
 
 
 def add_student(db):
@@ -189,56 +201,38 @@ def list_student(db):
         pprint(student)
 
 
-
 def add_department(db):
     """
     Add a new Department
     :param collection:  The pointer to the departments collection.
     :return:            None
     """
-
     collection = db["departments"]
-
     while True:
         name = input("Department name-> ")
-        if collection.count_documents({"name": name}):
-            print("We already have a department by that name.  Try again")
-            continue
         abbrv = input("Department abbreviation--> ")
-        if collection.count_documents({"abbreviation": abbrv}):
-            print("We already have a department with that abbreviation.  Try again.")
-            continue
         chair = input("Department chair name--> ")
-        if collection.count_documents({"chair_name": chair}): 
-            print("We already have a department with that chair.  Try again.")
-            continue
         building = input("Department building--> ")
         try:
             office = int(input("Department office number--> "))
         except ValueError:
             print("Wrong value type entered.  Try again.")
             continue
-        if collection.count_documents({"building": building, "office": office}):
-            print("We already have a department in that room.  Try again.")
-            continue
         desc = input("Department description--> ")
-        if collection.count_documents({"description": desc}):
-            print("We already have a department with that description.  Try again.")
-            continue
-        break
-
-
-    results = collection.insert_one(
-        {
-        "name": name,
-        "abbreviation": abbrv,
-        "chair_name": chair,
-        "building": building,
-        "office": office,
-        "description": desc
-        }
-    )
-    
+        try:
+            collection.insert_one(
+                {
+                "name": name,
+                "abbreviation": abbrv,
+                "chair_name": chair,
+                "building": building,
+                "office": office,
+                "description": desc
+                }
+            )
+            return 
+        except (WriteError, DuplicateKeyError) as e:
+            print_exception(e)
 
 def select_department(db):
     """
@@ -291,7 +285,7 @@ if __name__ == '__main__':
     hash_name: str = input('7-character database hash [puxnikb] -->') or "puxnikb"
     cluster = f"mongodb+srv://{username}:{password}@{project}.{hash_name}.mongodb.net/?retryWrites=true&w=majority"
     print(f"Cluster: mongodb+srv://{username}:********@{project}.{hash_name}.mongodb.net/?retryWrites=true&w=majority")
-    
+    cluster = "mongodb+srv://brandonwong2004:joe@school-management-syste.zkhdl1x.mongodb.net/?retryWrites=true&w=majority&appName=school-management-system"    
     client = MongoClient(cluster)
     # As a test that the connection worked, print out the database names.
     print(client.list_database_names())
@@ -319,10 +313,13 @@ if __name__ == '__main__':
     setup_departments_collection(departments)
     pprint(departments.index_information())
 
-
-    main_action: str = ''
-    while main_action != menu_main.last_action():
-        main_action = menu_main.menu_prompt()
-        print('next action: ', main_action)
-        exec(main_action)
+    menu: Menu = menu_main.menu_prompt()
+    action: str = ''
+    while action != menu.last_action():
+        action = menu.menu_prompt()
+        if action == "back":
+            menu = menu_main.menu_prompt()
+            continue
+        print('next action: ', action)
+        exec(action)
 
