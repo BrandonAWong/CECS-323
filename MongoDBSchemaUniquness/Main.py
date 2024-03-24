@@ -287,7 +287,7 @@ if __name__ == '__main__':
     hash_name: str = input('7-character database hash [puxnikb] -->') or "puxnikb"
     cluster = f"mongodb+srv://{username}:{password}@{project}.{hash_name}.mongodb.net/?retryWrites=true&w=majority"
     print(f"Cluster: mongodb+srv://{username}:********@{project}.{hash_name}.mongodb.net/?retryWrites=true&w=majority")
-    cluster = "mongodb+srv://brandonwong2004:joe@school-management-syste.zkhdl1x.mongodb.net/?retryWrites=true&w=majority&appName=school-management-system"    
+    
     client = MongoClient(cluster)
     # As a test that the connection worked, print out the database names.
     print(client.list_database_names())
@@ -315,9 +315,9 @@ if __name__ == '__main__':
     setup_departments_collection(departments)
     pprint(departments.index_information())
 
-    menu: Menu = menu_main.menu_prompt()
-    action: str = ''
-    while action != menu.last_action():
+    menu: Menu | str = menu_main.menu_prompt()
+    action: str = "" if isinstance(menu, Menu) else "pass"
+    while action != "pass":
         action = menu.menu_prompt()
         if action == "back":
             menu = menu_main.menu_prompt()
