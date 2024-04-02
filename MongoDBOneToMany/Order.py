@@ -79,7 +79,13 @@ class Order(Document):
         """
         results = f'Order: Placed by - {self.customerName} placed on {self.orderDate} status: {self.get_current_status()}'
         for orderItem in self.orderItems:
-            results = results + '\n\t' + f'Item: {orderItem.product}'
+            price = orderItem.product.buyPrice
+            for history in reversed(orderItem.product.priceHistory):
+                if history.priceChangeDate <= self.orderDate:
+                    price = history.price
+                    break
+            results += (f'\n\tItem: {orderItem.product.productName} - ${price} e.a. - '
+                        f'{orderItem.quantity} ordered')
         return results
 
     def add_item(self, item):

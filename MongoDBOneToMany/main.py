@@ -1,13 +1,17 @@
 from ConstraintUtilities import select_general, unique_general, prompt_for_date
 from Utilities import Utilities
 from Order import Order
+from Product import Product
+from PriceHistory import PriceHistory
 from OrderItem import OrderItem
 from StatusChange import StatusChange
 from CommandLogger import CommandLogger, log
 from pymongo import monitoring
+from mongoengine.errors import OperationError
 from Menu import Menu
 from Option import Option
-from menu_definitions import menu_main, add_select, list_select, select_select, delete_select, update_select
+from menu_definitions import menu_main
+from decimal import Decimal, InvalidOperation
 
 """
 This protects Order from deletions in OrderItem of any of the objects reference by Order
@@ -15,37 +19,6 @@ in its order_items list.  We could not include this in Order itself since that w
 make a cyclic delete_rule between Order and OrderItem.  I've commented this out because
 it makes it impossible to remove OrderItem instances.  But you get the idea how it works."""
 # OrderItem.register_delete_rule(Order, 'orderItems', mongoengine.DENY)
-
-def menu_loop(menu: Menu):
-    """Little helper routine to just keep cycling in a menu until the user signals that they
-    want to exit.
-    :param  menu:   The menu that the user will see."""
-    action: str = ''
-    while action != menu.last_action():
-        action = menu.menu_prompt()
-        print('next action: ', action)
-        exec(action)
-
-
-def add():
-    menu_loop(add_select)
-
-
-def list_members():
-    menu_loop(list_select)
-
-
-def select():
-    menu_loop(select_select)
-
-
-def delete():
-    menu_loop(delete_select)
-
-
-def update():
-    menu_loop(update_select)
-
 
 def select_order() -> Order:
     return select_general(Order)
@@ -116,10 +89,9 @@ def add_order_item():
     new_order_item: OrderItem
     order: Order
     while not success:
-        order = select_order()  # Prompt the user for an order to operate on.
-        # Create a new OrderItem instance.
+        order = select_order()
         new_order_item = OrderItem(order,
-                                   input('Product Name --> '),
+                                   select_product(),
                                    int(input('Quantity --> ')))
         # Make sure that this adheres to the existing uniqueness constraints.
         violated_constraints = unique_general(new_order_item)
@@ -145,14 +117,14 @@ def update_order():
     order: Order
     while not success:
         order = select_order()  # Find an order to modify.
-        status_change_date = prompt_for_date('Date and time of the status change: ')
+        status_change_date = prompt_for_date('Date and time of the price change: ')
         new_status = prompt_for_enum('Select the status:', StatusChange, 'status')
         try:
             order.change_status(StatusChange(new_status, status_change_date))
             order.save()
             success = True
         except ValueError as VE:
-            print('Attempted status change failed because:')
+            print('Attempted price change failed because:')
             print(VE)
 
 
@@ -170,7 +142,10 @@ def delete_order():
         MongoEngine (not MongoDB) will throw an exception."""
         item.delete()
     # Now that all the items on the order are removed, we can safely remove the order itself.
-    order.delete()
+    try:
+        order.delete()
+    except OperationError:
+        print("Unable to delete order. Order items are still related to order.")
 
 
 def delete_order_item():
@@ -180,24 +155,82 @@ def delete_order_item():
     """
     order = select_order()  # prompt the user for an order to update
     items = order.orderItems  # retrieve the list of items in this order
-    menu_items: [Option] = []  # list of order items to choose from
+    menu_items: list[Option] = []  # list of order items to choose from
     # Create an ad hoc menu of all of the items presently on the order.  Use __str__ to make a text version of each item
     for item in items:
         menu_items.append(Option(item.__str__(), item))
     # prompt the user for which one of those order items to remove, and remove it.
-    order.remove_item(Menu('Item Menu',
-                           'Choose which order item to remove', menu_items).menu_prompt())
+    item = (Menu('Item Menu',
+                 'Choose which order item to remove', menu_items).menu_prompt())
+    item.delete()
+    order.remove_item(item)
     # Update the order to no longer include that order item in its MongoDB list of order items.
     order.save()
 
 
-if __name__ == '__main__':
-    print('Starting in main.')
+def list_order():
+    print(select_order())
+
+
+def add_product():
+    while True:
+        try:
+            product = Product(
+                input("Product Code --> "),
+                input("Product Name --> "),
+                input("Product Description --> "),
+                int(input("Quantity In Stock --> ")),
+                round(Decimal(input("Buy Price --> ")), 2),
+                round(Decimal(input("MSRP --> ")), 2)
+            )
+        except (ValueError, InvalidOperation):
+            print("Invalid input.  Try again.")
+            continue
+
+        violated_constraints = unique_general(product)
+        if violated_constraints:
+            for violated_constraint in violated_constraints:
+                print('Your input values violated constraint: ', violated_constraint)
+            print('try again')
+            continue
+        break
+    product.save()
+
+
+def delete_product():
+    try:
+        select_product().delete()
+    except OperationError:
+        print("Product cannot be deleted, is present in order(s). Delete them first.")
+
+
+def select_product():
+    return select_general(Product)
+
+
+def update_product():
+    while True:
+        product = select_product()
+        try:
+            product.change_price(PriceHistory(round(Decimal(input("New Price --> ")), 2),
+                                               prompt_for_date("Date and time of the status change: ")))
+            product.save()
+            break
+        except (ValueError, InvalidOperation) as e:
+            print(f'Attempted status change failed because:\n{e}')
+
+
+if __name__ == "__main__":
+    print("Starting in main.")
     monitoring.register(CommandLogger())
     db = Utilities.startup()
-    main_action: str = ''
-    while main_action != menu_main.last_action():
-        main_action = menu_main.menu_prompt()
-        print('next action: ', main_action)
-        exec(main_action)
-    log.info('All done for now.')
+    menu: Menu = menu_main.menu_prompt()
+    action: str = ""
+    while action != "pass":
+        action = menu.menu_prompt()
+        if action == "back":
+            menu = menu_main.menu_prompt()
+            continue
+        print(f"next action: {action}")
+        exec(action)
+    log.info("All done for now.")
