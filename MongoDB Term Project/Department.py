@@ -1,3 +1,4 @@
+import mongoengine
 from mongoengine import *
 
 class Department(Document):
@@ -9,7 +10,7 @@ class Department(Document):
     name = StringField(db_field='name', max_length=80, min_length=1, required=True)
     abbreviation = StringField(db_field='abbreviation', max_length=6, min_length=1, required=True)
     chairName = StringField(db_field='chair_name', max_length=80, min_length=5, required=True)
-    building = StringField(db_field='building', max_length=10, min_length=1, required=True) #need to do enum on this
+    building = StringField(db_field='building', max_length=10, min_length=1, required=True) #need to do enum or check on list here
     office = IntField(db_field='office', min_value=0, required=True)
     description = StringField(db_field='description', max_length=80, min_length=1, required=True)
     courses = ListField(ReferenceField('Course')) #I think this brings in the ID, not sure how to bring in the string like our design (maybe change it)
