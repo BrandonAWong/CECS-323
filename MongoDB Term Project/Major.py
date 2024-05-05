@@ -1,6 +1,6 @@
-from mongoengine import *
-#from Department import Department
-#I think we might need to bring in a reference to the department (look at orderitems)
+from mongoengine import Document, EmbeddedDocument, StringField, ReferenceField, DENY
+from Department import Department
+
 
 class Major(Document):
     """A distinct field of study.  Each major has a degree program that a student
@@ -9,20 +9,19 @@ class Major(Document):
     objectives for their education.  Several Departments have multiple majors.
     For instance the CECS department has both a Computer Engineering as well as
     a Computer Science major."""
-    
-    #Include this line if we change it to reference the department
-    #department = ReferenceField(Department, required=True, reverse_delete_rule=mongoengine.DENY)
     name = StringField(db_field='name', max_length=80, min_length=1, required=True)
     description = StringField(db_field='description', max_length=80, min_length=1, required=True)
+    department = ReferenceField(Department, required=True, reverse_delete_rule=DENY)
+
 
     meta = {'collection': 'majors',
             'indexes': [
                 {'unique': True, 'fields': ['name'], 'name': 'majors_pk'}
             ]}
 
-    def __init__(self, name: str, description: str, *args, **values): #department: Department (maybe)
+    def __init__(self, department: Department, name: str, description: str, *args, **values): 
         super().__init__(*args, **values)
-        #self.department = department
+        self.department = department
         self.name = name
         self.description = description
 
@@ -36,3 +35,4 @@ class Major(Document):
 
     def remove_student(self, student):
         pass
+      
